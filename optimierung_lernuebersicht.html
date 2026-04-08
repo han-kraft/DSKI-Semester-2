@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimierung — Lernübersicht DHBW Heilbronn</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a18; font-size: 15px; line-height: 1.6; }
+.app { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+.header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e0ded6; }
+.header h1 { font-size: 22px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+.header p { font-size: 14px; color: #666; }
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+.nav-btn { padding: 7px 14px; font-size: 13px; border: 1px solid #d0cec7; border-radius: 8px; background: #fff; color: #555; cursor: pointer; transition: all 0.15s; }
+.nav-btn:hover { background: #f0eee8; color: #1a1a18; }
+.nav-btn.active { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; font-weight: 500; }
+.content { display: none; }
+.content.active { display: block; }
+.section-title { font-size: 16px; font-weight: 500; color: #1a1a18; margin: 1.2rem 0 0.8rem; padding-bottom: 6px; border-bottom: 1px solid #e8e6de; }
+.section-title:first-child { margin-top: 0; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+.card { background: #fff; border: 1px solid #e0ded6; border-radius: 12px; padding: 1rem 1.2rem; }
+.card-title { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 8px; }
+.card-body { font-size: 13px; color: #555; line-height: 1.6; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 8px; margin-bottom: 10px; }
+.bp { background: #EEEDFE; color: #3C3489; }
+.bt { background: #E1F5EE; color: #085041; }
+.ba { background: #FAEEDA; color: #633806; }
+.bb { background: #E6F1FB; color: #0C447C; }
+.formula { background: #f9f8f4; border: 1px solid #e8e6de; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 13px; color: #1a1a18; margin: 8px 0; line-height: 1.9; white-space: pre-wrap; }
+.insight { background: #EEEDFE; border-left: 3px solid #7F77DD; padding: 10px 14px; margin: 10px 0; font-size: 13px; color: #3C3489; line-height: 1.6; }
+.warn { background: #FAEEDA; border-left: 3px solid #EF9F27; padding: 10px 14px; margin: 10px 0; font-size: 13px; color: #633806; line-height: 1.6; }
+.ok { background: #E1F5EE; border-left: 3px solid #1D9E75; padding: 10px 14px; margin: 10px 0; font-size: 13px; color: #085041; line-height: 1.6; }
+.step { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.step-num { min-width: 26px; height: 26px; border-radius: 50%; background: #EEEDFE; color: #3C3489; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-text { font-size: 13px; color: #555; line-height: 1.6; padding-top: 3px; }
+.step-text strong { color: #1a1a18; font-weight: 500; }
+.tw { overflow-x: auto; margin: 10px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f5f4ef; font-weight: 500; color: #1a1a18; padding: 9px 12px; text-align: left; border-bottom: 1px solid #e0ded6; }
+td { padding: 8px 12px; border-bottom: 1px solid #eeece6; color: #555; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.vl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+.vl-card { border: 1px solid #e0ded6; border-radius: 8px; padding: 10px 12px; cursor: pointer; background: #fff; transition: all 0.15s; }
+.vl-card:hover { border-color: #AFA9EC; background: #EEEDFE; }
+.vl-num { font-size: 11px; color: #999; margin-bottom: 4px; }
+.vl-name { font-size: 12px; font-weight: 500; color: #1a1a18; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+hr { border: none; border-top: 1px solid #e8e6de; margin: 1.2rem 0; }
+@media (max-width: 520px) { .two-col { grid-template-columns: 1fr; } .card-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <h1>Optimierung — Interaktive Lernübersicht</h1>
+  <p>DHBW Heilbronn · SS 2026 · Prof. Till Heller</p>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showTab('uebersicht')">Kursübersicht</button>
+  <button class="nav-btn" onclick="showTab('vl1')">VL1 Einführung</button>
+  <button class="nav-btn" onclick="showTab('vl2')">VL2 Modellierung</button>
+  <button class="nav-btn" onclick="showTab('vl3')">VL3 Geometrie</button>
+  <button class="nav-btn" onclick="showTab('vl4')">VL4 Simplex</button>
+  <button class="nav-btn" onclick="showTab('vl5')">VL5 Dualität</button>
+  <button class="nav-btn" onclick="showTab('vl6')">VL6 MIP</button>
+  <button class="nav-btn" onclick="showTab('vl7')">VL7 B&B + Schnitte</button>
+  <button class="nav-btn" onclick="showTab('vl8')">VL8 Diskret kompakt</button>
+  <button class="nav-btn" onclick="showTab('vl9')">VL9 NLP Grundlagen</button>
+  <button class="nav-btn" onclick="showTab('vl10')">VL10 Gradientenverf.</button>
+</div>
+
+<!-- ÜBERSICHT -->
+<div class="content active" id="tab-uebersicht">
+  <div class="section-title">Alle Vorlesungen</div>
+  <div class="vl-grid">
+    <div class="vl-card" onclick="showTab('vl1')"><div class="vl-num">VL 01</div><div class="vl-name">Einführung &amp; Grundbegriffe</div></div>
+    <div class="vl-card" onclick="showTab('vl2')"><div class="vl-num">VL 02</div><div class="vl-name">Mathematische Modellierung</div></div>
+    <div class="vl-card" onclick="showTab('vl3')"><div class="vl-num">VL 03</div><div class="vl-name">Geometrische Interpretation</div></div>
+    <div class="vl-card" onclick="showTab('vl4')"><div class="vl-num">VL 04</div><div class="vl-name">Simplex-Algorithmus</div></div>
+    <div class="vl-card" onclick="showTab('vl5')"><div class="vl-num">VL 05</div><div class="vl-name">Dualität</div></div>
+    <div class="vl-card" onclick="showTab('vl6')"><div class="vl-num">VL 06</div><div class="vl-name">Mixed-Integer Programming</div></div>
+    <div class="vl-card" onclick="showTab('vl7')"><div class="vl-num">VL 07</div><div class="vl-name">Branch &amp; Bound + Schnitte</div></div>
+    <div class="vl-card" onclick="showTab('vl8')"><div class="vl-num">VL 08</div><div class="vl-name">Diskrete Opt. kompakt</div></div>
+    <div class="vl-card" onclick="showTab('vl9')"><div class="vl-num">VL 09</div><div class="vl-name">Nichtlineare Opt.</div></div>
+    <div class="vl-card" onclick="showTab('vl10')"><div class="vl-num">VL 10</div><div class="vl-name">Gradientenverfahren</div></div>
+  </div>
+  <div class="section-title">Klassifikation von Optimierungsproblemen</div>
+  <div class="tw"><table>
+    <tr><th>Typ</th><th>Zielfunktion</th><th>Variablen</th><th>Eigenschaft</th><th>Lösungsverfahren</th></tr>
+    <tr><td><span class="badge bp">LP</span></td><td>linear c⊤x</td><td>kontinuierlich ℝⁿ</td><td>Globales Optimum garantiert</td><td>Simplex, Interior Point</td></tr>
+    <tr><td><span class="badge bb">NLP konvex</span></td><td>konvex f(x)</td><td>kontinuierlich</td><td>Lokal = Global</td><td>Gradientenabstieg, Newton</td></tr>
+    <tr><td><span class="badge ba">NLP allg.</span></td><td>nichtlinear</td><td>kontinuierlich</td><td>Nur lokale Optima</td><td>SQP, Metaheuristiken</td></tr>
+    <tr><td><span class="badge bt">IP / MIP</span></td><td>linear</td><td>ganzzahlig / gemischt</td><td>NP-schwer i.A.</td><td>Branch &amp; Bound, B&amp;C</td></tr>
+  </table></div>
+  <div class="section-title">Lernpfad</div>
+  <div class="insight">LP-Grundlagen (VL 1–3) → Simplex-Algorithmus (VL 4) → Dualität (VL 5) → Ganzzahlige Erweiterung (VL 6–8) → Nichtlineare Verallgemeinerung (VL 9–10)</div>
+</div>
+
+<!-- VL1 -->
+<div class="content" id="tab-vl1">
+  <span class="badge bp">VL 01</span>
+  <div class="section-title">Was ist Optimierung?</div>
+  <div class="insight">Die Suche nach der <strong>besten Lösung unter gegebenen Einschränkungen</strong>. Ressourcen (Zeit, Geld, Material, Energie) sind begrenzt, Ziele können konkurrieren.</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Entscheidungsvariablen</div>
+      <div class="card-body">x = (x₁, ..., xₙ)⊤ ∈ ℝⁿ — was wir beeinflussen können (Produktionsmengen, Investitionsanteile, …)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Zielfunktion</div>
+      <div class="card-body">f: ℝⁿ → ℝ — was wir minimieren oder maximieren wollen (Gewinn, Kosten, Zeit, …)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Nebenbedingungen</div>
+      <div class="card-body">gᵢ(x) ≤ 0, hⱼ(x) = 0 — welche Einschränkungen erfüllt sein müssen (Kapazitäten, Bilanzen, …)</div>
+    </div>
+  </div>
+  <div class="section-title">Allgemeine Problemformulierung</div>
+  <div class="formula">min  f(x)        oder       max  f(x)
+u.d.N.  gᵢ(x) ≤ 0   (i = 1,...,m)
+        hⱼ(x) = 0   (j = 1,...,p)
+        x ∈ X ⊆ ℝⁿ
+
+Zulässiger Bereich:  F = {x ∈ X : alle Bedingungen erfüllt}
+Optimale Lösung:     x* mit f(x*) ≤ f(x)  ∀ x ∈ F</div>
+  <div class="section-title">Problematische Fälle</div>
+  <div class="tw"><table>
+    <tr><th>Fall</th><th>Beschreibung</th><th>Beispiel</th></tr>
+    <tr><td>Unzulässig (F = ∅)</td><td>Widersprüchliche Nebenbedingungen</td><td>x ≤ 5 und x ≥ 10 gleichzeitig</td></tr>
+    <tr><td>Unbeschränkt</td><td>Zielfunktion → ±∞ möglich</td><td>max x ohne obere Grenze</td></tr>
+    <tr><td>Mehrere Optima</td><td>Ganze Kante oder Fläche optimal</td><td>Zielfunktion parallel zu einer Kante des Polyeders</td></tr>
+  </table></div>
+  <div class="section-title">Klassifikation</div>
+  <div class="tw"><table>
+    <tr><th>Merkmal</th><th>Ausprägung 1</th><th>Ausprägung 2</th></tr>
+    <tr><td>Zielfunktion</td><td>Linear (LP)</td><td>Nichtlinear (NLP)</td></tr>
+    <tr><td>Variablen</td><td>Kontinuierlich x ∈ ℝⁿ</td><td>Diskret x ∈ ℤⁿ oder {0,1}ⁿ</td></tr>
+    <tr><td>Optimalität</td><td>Lokales Optimum</td><td>Globales Optimum</td></tr>
+  </table></div>
+</div>
+
+<!-- VL2 -->
+<div class="content" id="tab-vl2">
+  <span class="badge bp">VL 02</span>
+  <div class="section-title">5-Schritte-Modellierungsprozess</div>
+  <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Problem analysieren</strong> — Was soll entschieden werden? Was ist das Ziel? Welche Einschränkungen existieren?</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Entscheidungsvariablen definieren</strong> — Typ, Wertebereich, klare Bedeutung festlegen</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Zielfunktion formulieren</strong> — linear (c⊤x), quadratisch (x⊤Qx), oder nichtlinear (f(x))</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Nebenbedingungen formulieren</strong> — Kapazität, Nachfrage, Bilanz, Nicht-Negativität, Ganzzahl</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Validieren</strong> — Ist das Modell korrekt? Sind alle Einheiten konsistent? Gibt es zulässige Lösungen?</div></div>
+  <div class="section-title">Durchgehendes Beispiel: Möbelfabrik</div>
+  <div class="formula">Produkt:   Tisch (x₁)   Stuhl (x₂)   Schrank (x₃)
+Gewinn:      80 €         30 €         120 €
+Holz:         6 EH          2 EH           8 EH
+Arbeit:       4 h           2 h            6 h
+Lackierung:   2 h           1 h            3 h
+
+LP-Formulierung:
+max  80x₁ + 30x₂ + 120x₃
+u.d.N.
+  6x₁ + 2x₂ +  8x₃ ≤ 400   (Holz)
+  4x₁ + 2x₂ +  6x₃ ≤ 300   (Arbeit)
+  2x₁ + 1x₂ +  3x₃ ≤ 150   (Lackierung)
+  x₁, x₂, x₃ ≥ 0</div>
+  <div class="section-title">Arten von Nebenbedingungen</div>
+  <div class="tw"><table>
+    <tr><th>Typ</th><th>Form</th><th>Typische Verwendung</th></tr>
+    <tr><td>Kapazität</td><td>∑ aᵢⱼxⱼ ≤ bᵢ</td><td>Ressource limitiert (Holz, Arbeit, Budget)</td></tr>
+    <tr><td>Nachfrage</td><td>∑ xⱼ ≥ d</td><td>Mindestmenge muss produziert werden</td></tr>
+    <tr><td>Bilanz</td><td>∑ xⁱⁿ = ∑ xᵃᵘˢ</td><td>Flusserhaltung in Netzwerken</td></tr>
+    <tr><td>Ganzzahl</td><td>xᵢ ∈ ℤ</td><td>Diskrete Mengen (Maschinen, Personen)</td></tr>
+    <tr><td>Binär</td><td>xᵢ ∈ {0,1}</td><td>Ja/Nein-Entscheidungen, Auswahl</td></tr>
+    <tr><td>Quadratisch</td><td>x₁² + x₂² ≤ r²</td><td>Kreisförmige Beschränkungen</td></tr>
+  </table></div>
+</div>
+
+<!-- VL3 -->
+<div class="content" id="tab-vl3">
+  <span class="badge bp">VL 03</span>
+  <div class="section-title">Polyeder und geometrische Grundbegriffe</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Polyeder</div>
+      <div class="card-body">P = {x ∈ ℝⁿ : Ax ≤ b} — Schnitt von endlich vielen Halbräumen. Beschränktes Polyeder = Polytop.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ecke (Extrempunkt)</div>
+      <div class="card-body">Punkt x ∈ P, der nicht als echte Konvexkombination zweier anderer Punkte aus P darstellbar ist. Entspricht einer Basislösung.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Iso-Gewinn-Linie</div>
+      <div class="card-body">Menge {x : c⊤x = k} aller Punkte mit gleichem Zielfunktionswert k. Beim Maximieren: in Richtung c verschieben.</div>
+    </div>
+  </div>
+  <div class="section-title">Fundamentalsatz der linearen Optimierung</div>
+  <div class="insight">
+    Sei P ⊆ ℝⁿ ein nichtleeres Polyeder und c ∈ ℝⁿ. Für LP max{c⊤x : x ∈ P} gilt:<br><br>
+    1. Falls das Maximum endlich existiert, wird es in <strong>mindestens einer Ecke</strong> von P angenommen.<br>
+    2. Falls P beschränkt ist (Polytop), existiert <strong>immer</strong> ein Maximum.<br><br>
+    Konsequenz: Es genügt, die (endlich vielen) Ecken zu überprüfen!
+  </div>
+  <div class="section-title">Grafisches Lösungsverfahren (2D)</div>
+  <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Zulässigen Bereich zeichnen</strong> — Alle Halbräume einzeichnen, Schnittgebiet markieren</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Alle Ecken bestimmen</strong> — Schnittpunkte der aktiven Restriktionen berechnen</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Zielfunktion auswerten</strong> — c⊤x für jede Ecke berechnen, maximalen Wert wählen</div></div>
+  <div class="section-title">Beispiel: Grafische Lösung</div>
+  <div class="formula">max 3x₁ + 2x₂
+u.d.N.  x₁ + x₂ ≤ 6
+        2x₁ + x₂ ≤ 8
+        x₁ ≤ 3
+        x₁, x₂ ≥ 0
+
+Ecken und Zielfunktionswerte:
+  (0,0) → z = 0
+  (3,0) → z = 9
+  (3,2) → z = 13
+  (2,4) → z = 14   ← Optimum!
+  (0,6) → z = 12
+
+Optimum: x* = (2, 4), z* = 14</div>
+  <div class="section-title">Sonderfälle</div>
+  <div class="tw"><table>
+    <tr><th>Fall</th><th>Geometrische Interpretation</th></tr>
+    <tr><td>Eindeutige optimale Lösung</td><td>Iso-Gewinn-Linie berührt genau eine Ecke</td></tr>
+    <tr><td>Unendlich viele Optima</td><td>Iso-Linie parallel zu einer Polytop-Kante</td></tr>
+    <tr><td>Unbeschränktes Problem</td><td>Polyeder offen in Richtung c — Iso-Linie nie tangent</td></tr>
+    <tr><td>Unzulässiges Problem</td><td>Zulässiger Bereich leer</td></tr>
+  </table></div>
+</div>
+
+<!-- VL4 -->
+<div class="content" id="tab-vl4">
+  <span class="badge bp">VL 04</span>
+  <div class="section-title">Motivation</div>
+  <div class="insight">Idee (George Dantzig, 1947): Starte an einer Ecke, wandere zu benachbarten Ecken mit besserem Zielfunktionswert — bis keine Verbesserung mehr möglich. Klappt weil: Zielfunktion linear + Polyeder konvex → jedes lokale Maximum ist global.</div>
+  <div class="section-title">Standardform und Schlupfvariablen</div>
+  <div class="formula">LP in Standardform:   max c⊤x  u.d.N.  Ax ≤ b, x ≥ 0
+
+Schlupfvariable sᵢ ≥ 0 wandelt Ungleichung in Gleichung:
+  aᵢ⊤x ≤ bᵢ   ⟺   aᵢ⊤x + sᵢ = bᵢ,  sᵢ ≥ 0
+
+sᵢ = 0: Restriktion aktiv (Ressource aufgebraucht)
+sᵢ > 0: Slack / Reserve vorhanden</div>
+  <div class="section-title">Simplex-Tableau</div>
+  <div class="formula">Beispiel Möbelfabrik (vereinfacht: x₁=Tische, x₂=Stühle):
+
+  Basis │ s₁   s₂   x₁   x₂  │ RHS
+  ──────┼──────────────────────┼─────
+   s₁   │  1    0    6    2   │  400
+   s₂   │  0    1    4    2   │  300
+  ──────┼──────────────────────┼─────
+   z    │  0    0   -80  -30  │    0
+
+z-Zeile negativ → noch nicht optimal
+x₁ hat Koeffizient -80: viel Potential → Pivotspalte = x₁</div>
+  <div class="section-title">Algorithmus — 4 Schritte pro Iteration</div>
+  <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Optimalitätsprüfung:</strong> Alle z-Zeilen-Einträge ≥ 0? → STOPP (optimal)</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Pivotspalte wählen:</strong> Variable mit negativstem z-Koeffizient (Dantzig-Regel) oder kleinstem Index (Bland-Regel, verhindert Cycling)</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Pivotzeile (Minimum-Ratio-Test):</strong> Ratioi = RHSᵢ / aᵢⱼ für alle aᵢⱼ &gt; 0 → kleinste Ratio = Austrittszeile</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Pivotieren:</strong> Pivotspalte durch Zeilenoperationen zur Einheitsspalte transformieren</div></div>
+  <div class="section-title">Schattenpreise</div>
+  <div class="ok">Im optimalen Tableau gibt der z-Zeilen-Koeffizient einer Schlupfvariablen den Schattenpreis an: Wie viel steigt der Zielfunktionswert, wenn Ressource i um 1 Einheit erhöht wird? Schattenpreis = 0 → Restriktion nicht bindend.</div>
+  <div class="section-title">Komplexität</div>
+  <div class="two-col">
+    <div class="warn"><strong>Theorie:</strong> Worst Case exponentiell (Klee-Minty 1972: 2ⁿ Ecken möglich)</div>
+    <div class="ok"><strong>Praxis:</strong> Fast immer sehr schnell. Millionen Variablen routinemäßig lösbar.</div>
+  </div>
+</div>
+
+<!-- VL5 -->
+<div class="content" id="tab-vl5">
+  <span class="badge bt">VL 05</span>
+  <div class="section-title">Primales und duales Problem</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Primales Problem (P)</div>
+      <div class="formula" style="margin-top:6px;">max  c⊤x
+u.d.N.  Ax ≤ b
+        x ≥ 0</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Duales Problem (D)</div>
+      <div class="formula" style="margin-top:6px;">min  b⊤y
+u.d.N.  A⊤y ≥ c
+        y ≥ 0</div>
+    </div>
+  </div>
+  <div class="section-title">Dualitätssätze</div>
+  <div class="insight">
+    <strong>Schwacher Dualitätssatz:</strong> Für jede primal zulässige Lösung x und dual zulässige Lösung y gilt: c⊤x ≤ b⊤y. Jede dual zulässige Lösung liefert eine obere Schranke für (P).<br><br>
+    <strong>Starker Dualitätssatz:</strong> Hat (P) eine optimale Lösung x*, dann hat (D) auch eine optimale Lösung y*, und es gilt: c⊤x* = b⊤y*
+  </div>
+  <div class="section-title">Komplementäre Schlupfbedingungen (KKT für LP)</div>
+  <div class="formula">Primale Komplementarität:
+  yᵢ · (bᵢ - aᵢ⊤x*) = 0   ∀ i
+  → Schattenpreis yᵢ = 0  ⟺  Restriktion i nicht bindend
+
+Duale Komplementarität:
+  xⱼ · (A⊤y* - c)ⱼ = 0   ∀ j
+  → Variable xⱼ = 0  ⟺  reduzierte Kosten > 0</div>
+  <div class="section-title">Ökonomische Interpretation</div>
+  <div class="ok">Die dualen Variablen yᵢ sind die <strong>Schattenpreise</strong> (Ressourcenpreise): yᵢ gibt an, um wie viel der maximale Gewinn steigt, wenn Ressource i um eine Einheit erhöht wird. Lautet y₁ = 10, würde eine Einheit mehr Holz den Gewinn um 10 € steigern.</div>
+  <div class="section-title">Dualitätstabelle: Primal ↔ Dual</div>
+  <div class="tw"><table>
+    <tr><th>Primal (P)</th><th>Dual (D)</th></tr>
+    <tr><td>Maximierungsproblem</td><td>Minimierungsproblem</td></tr>
+    <tr><td>n Variablen</td><td>m Variablen</td></tr>
+    <tr><td>m Nebenbedingungen</td><td>n Nebenbedingungen</td></tr>
+    <tr><td>≤-Constraint → y ≥ 0</td><td>≥-Constraint → x ≥ 0</td></tr>
+    <tr><td>Zulässig + beschränkt</td><td>Zulässig + beschränkt (gilt spiegelbildlich)</td></tr>
+  </table></div>
+</div>
+
+<!-- VL6 -->
+<div class="content" id="tab-vl6">
+  <span class="badge ba">VL 06</span>
+  <div class="section-title">Mixed-Integer Programming (MIP)</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">IP — Integer Program</div>
+      <div class="card-body">Alle Variablen ganzzahlig: x ∈ ℤⁿ. Notwendig wenn Mengen diskret sind (Anzahl Maschinen, Personen, Einheiten).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">MIP — Mixed Integer</div>
+      <div class="card-body">Manche Variablen reell, manche ganzzahlig. Sehr häufig in der Praxis (z.B. Standortplanung + Transportmengen).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">BIP — Binary IP</div>
+      <div class="card-body">xⱼ ∈ {0,1}. Ideal für Ja/Nein-Entscheidungen, Zuweisung, Auswahl aus Alternativen.</div>
+    </div>
+  </div>
+  <div class="section-title">Modellierungstechniken mit Binärvariablen yⱼ ∈ {0,1}</div>
+  <div class="tw"><table>
+    <tr><th>Technik</th><th>Formulierung</th><th>Anwendung</th></tr>
+    <tr><td>Fixkosten</td><td>f·yⱼ + cⱼxⱼ; xⱼ ≤ M·yⱼ</td><td>Anlage öffnen kostet f€</td></tr>
+    <tr><td>Auswahl aus k von n</td><td>∑ yⱼ = k (oder ≤ k)</td><td>Genau k Projekte auswählen</td></tr>
+    <tr><td>A ⇒ B (Implikation)</td><td>yA ≤ yB</td><td>A nur wenn auch B</td></tr>
+    <tr><td>Entweder A oder B</td><td>yA + yB = 1</td><td>Genau eine von zwei Optionen</td></tr>
+    <tr><td>Linearisierung x₁·x₂</td><td>z ≤ x₁, z ≤ x₂, z ≥ x₁+x₂−1</td><td>Produkt binärer Variablen</td></tr>
+  </table></div>
+  <div class="section-title">LP-Relaxierung und Integrality Gap</div>
+  <div class="formula">LP-Relaxierung: Entferne Ganzzahligkeitsbedingungen
+  → liefert obere Schranke für MIP-Optimum (bei Maximierung)
+
+Integrality Gap = (LP-Optimum − IP-Optimum) / LP-Optimum
+
+Beispiel Rucksack:
+  LP-Relaxierung: 1900 € (Buch zu 0,75 einpacken)
+  IP-Optimum:     1800 €
+  Integrality Gap ≈ 5,6%</div>
+  <div class="warn">Einfaches Runden der LP-Lösung kann unzulässig sein oder weit vom Optimum entfernt liegen!</div>
+  <div class="ok">MIP ist zwar NP-schwer, aber moderne Solver (Gurobi, CPLEX) lösen viele praktische Instanzen in annehmbarer Zeit — wenn die Modellformulierung gut ist.</div>
+</div>
+
+<!-- VL7 -->
+<div class="content" id="tab-vl7">
+  <span class="badge ba">VL 07</span>
+  <div class="section-title">Branch-and-Bound (B&amp;B)</div>
+  <div class="insight">Grundidee: Teile und herrsche — Zerlege das MIP rekursiv in LP-Teilprobleme, berechne Schranken und schneide hoffnungslose Äste ab (Pruning).</div>
+  <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Branch:</strong> Wähle nicht-ganzzahlige Variable xⱼ = v̄. Erzeuge zwei Teilprobleme: (I) xⱼ ≤ ⌊v̄⌋ und (II) xⱼ ≥ ⌈v̄⌉. Der Streifen ⌊v̄⌋ &lt; xⱼ &lt; ⌈v̄⌉ enthält keine ganzzahligen Punkte.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Bound:</strong> Löse LP-Relaxierung jedes Teilproblems → obere Schranke (UB) für diesen Ast. Beste bekannte ganzzahlige Lösung = untere Schranke (LB).</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Prune:</strong> Knoten abschneiden wenn: (a) Teilproblem unzulässig, (b) UB ≤ LB (kein besseres Optimum möglich), (c) LP-Lösung schon ganzzahlig → LB aktualisieren</div></div>
+  <div class="section-title">B&amp;B-Algorithmus</div>
+  <div class="formula">Input:  MIP, initiale LB = -∞
+Initialisiere:  Knotenliste L = {Wurzel}
+
+While L ≠ ∅:
+  1. Wähle Knoten k aus L
+  2. Löse LP-Relaxierung von k
+  3. Falls unzulässig → verwerfe k
+  4. Falls LP-Wert ≤ LB → verwerfe k (Bound-Pruning)
+  5. Falls Lösung ganzzahlig → aktualisiere LB
+  6. Sonst: Branch auf nicht-ganzzahlige Variable
+
+Return: Beste gefundene Lösung</div>
+  <div class="section-title">Branching- und Knotenstrategien</div>
+  <div class="two-col">
+    <div class="card"><div class="card-title">Most Fractional</div><div class="card-body">Variable wählen, die am nächsten bei 0.5 liegt. Einfach und oft effektiv.</div></div>
+    <div class="card"><div class="card-title">Strong Branching</div><div class="card-body">Alle Kandidaten testen, besten wählen. Teurer, aber deutlich bessere Bäume.</div></div>
+  </div>
+  <div class="two-col" style="margin-top:8px;">
+    <div class="card"><div class="card-title">Depth-First</div><div class="card-body">Findet schnell zulässige Lösungen, geringer Speicherbedarf.</div></div>
+    <div class="card"><div class="card-title">Best-First</div><div class="card-body">Folgt besten Bounds, beweist Optimalität schneller.</div></div>
+  </div>
+  <hr>
+  <div class="section-title">Gomory-Schnitte</div>
+  <div class="formula">Aus optimalem Tableau, Zeile i mit nicht-ganzzahliger RHS b̄ᵢ:
+
+fⱼ = ā_ij − ⌊ā_ij⌋   (Nachkomma-Anteil Koeffizient)
+f₀ = b̄ᵢ − ⌊b̄ᵢ⌋     (Nachkomma-Anteil RHS)
+
+Gomory-Schnitt:  ∑_{j∉B} fⱼ · xⱼ ≥ f₀
+
+→ Schneidet LP-Optimum ab, ohne ganzzahlige Punkte zu verlieren!</div>
+  <div class="ok"><strong>Branch-and-Cut = B&amp;B + Schnittebenen.</strong> Moderne Solver kombinieren beide Ansätze und verwenden zusätzlich problemspezifische Schnitte (Knapsack Cover Cuts, Clique Cuts, Flow Cover Cuts).</div>
+</div>
+
+<!-- VL8 -->
+<div class="content" id="tab-vl8">
+  <span class="badge ba">VL 08</span>
+  <div class="section-title">Klassische kombinatorische Probleme</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Rucksackproblem (Knapsack)</div>
+      <div class="card-body"><div class="formula" style="margin-bottom:6px;">max ∑ vⱼxⱼ
+u.d.N. ∑ wⱼxⱼ ≤ W
+       xⱼ ∈ {0,1}</div>NP-schwer, aber gut lösbar via B&B, Dynamische Programmierung oder Greedy.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Traveling Salesman (TSP)</div>
+      <div class="card-body">Kürzeste Tour durch n Städte, jede genau einmal. (n-1)!/2 mögliche Touren. NP-schwer. Lösbar mit B&B + Subtour-Eliminationsschnitten.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Set Covering</div>
+      <div class="card-body">Wähle minimale Anzahl von Mengen, die alle Elemente abdecken. Einsatz: Dienstplanung, Standortwahl, Netzwerkdesign.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Facility Location</div>
+      <div class="card-body">Wo eröffnet man Standorte (Fixkosten), um Transportkosten zu Kunden zu minimieren? Klassisches MIP mit Binärvariablen für Standorte.</div>
+    </div>
+  </div>
+  <div class="section-title">Komplexitätstheorie</div>
+  <div class="tw"><table>
+    <tr><th>Klasse</th><th>Bedeutung</th><th>Beispiele</th></tr>
+    <tr><td>P</td><td>Polynomiell lösbar (effizient)</td><td>LP (Ellipsoid, Interior Point), Matching, Shortest Path</td></tr>
+    <tr><td>NP</td><td>Lösungen polynomiell verifizierbar</td><td>IP, TSP, Rucksack, 3-SAT</td></tr>
+    <tr><td>NP-schwer</td><td>Mindestens so schwer wie jedes NP-Problem</td><td>TSP, Graphfärbung, Rucksack, MIP allgemein</td></tr>
+    <tr><td>NP-vollständig</td><td>NP-schwer UND in NP</td><td>3-SAT, Vertex Cover, Hamiltonian Path</td></tr>
+  </table></div>
+  <div class="warn"><strong>Wichtig:</strong> NP-schwer ≠ in der Praxis unlösbar! Moderne Solver (Gurobi, CPLEX) lösen MIPs mit hunderttausenden Variablen in Sekunden — wenn die Struktur gut ist und die Modellformulierung stark.</div>
+  <div class="section-title">Approximationsalgorithmen</div>
+  <div class="ok">Wenn exakte Lösung zu teuer: α-Approximationsalgorithmus garantiert eine Lösung, die höchstens α-mal schlechter als das Optimum ist. Z.B. Greedy für Rucksack: 2-Approximation in O(n log n).</div>
+</div>
+
+<!-- VL9 -->
+<div class="content" id="tab-vl9">
+  <span class="badge bb">VL 09</span>
+  <div class="section-title">Nichtlineare Optimierung — Grundlagen</div>
+  <div class="formula">Allgemeines NLP:
+  min  f(x)
+  u.d.N.  gᵢ(x) ≤ 0   (i = 1,...,m)
+          hⱼ(x) = 0   (j = 1,...,p)
+          x ∈ ℝⁿ
+
+Anwendungen: ML (neuronale Netze), Portfolio-Opt., Strukturoptimierung,
+             Regelungstechnik, Chemische Prozessoptimierung</div>
+  <div class="section-title">Gradient und Hesse-Matrix</div>
+  <div class="formula">Gradient:
+  ∇f(x) = (∂f/∂x₁, ..., ∂f/∂xₙ)⊤
+  → zeigt in Richtung steilsten Anstiegs
+  → steht senkrecht auf Niveaulinien
+
+Beispiel: f(x₁,x₂) = x₁² + 2x₂²
+  ∇f = (2x₁, 4x₂)⊤
+  Minimum bei (0,0): ∇f(0,0) = (0,0)⊤
+
+Hesse-Matrix H(x):
+  Hᵢⱼ = ∂²f / (∂xᵢ ∂xⱼ)   (Matrix der zweiten partiellen Ableitungen)
+
+Beispiel: f(x₁,x₂) = x₁² + 2x₂²
+  H = [[2, 0], [0, 4]]</div>
+  <div class="section-title">Optimalitätsbedingungen 1. Ordnung (unbeschränkt)</div>
+  <div class="insight">
+    <strong>Notwendige Bedingung:</strong> Wenn x* lokales Minimum ist, dann ∇f(x*) = 0 (stationärer Punkt).<br><br>
+    <strong>Achtung:</strong> ∇f = 0 allein reicht nicht! Ein stationärer Punkt kann sein: lokales Minimum, lokales Maximum, oder Sattelpunkt.
+  </div>
+  <div class="section-title">Optimalitätsbedingungen 2. Ordnung</div>
+  <div class="formula">Hinreichende Bedingung für lokales Minimum:
+  ∇f(x*) = 0   UND   H(x*) ist positiv definit
+
+Positiv definit: alle Eigenwerte > 0
+  ↔ Sylvester: alle führenden Hauptminoren > 0
+  ↔ Schüsselform: f krümmt sich überall nach oben
+
+Positiv semidefinit: alle Eigenwerte ≥ 0 (Grenzfall)</div>
+  <div class="section-title">Konvexität</div>
+  <div class="two-col">
+    <div class="ok"><strong>Konvexes Problem:</strong> f konvex, gᵢ konvex, hⱼ affin. → Zulässiger Bereich konvex → jedes lokale Minimum ist global. LP ist Spezialfall!</div>
+    <div class="warn"><strong>Nichtkonvex:</strong> Viele lokale Minima. Startpunkt entscheidet, welches Tal gefunden wird. Neuronale Netze: Verlustfunktion nichtkonvex!</div>
+  </div>
+  <div class="section-title">KKT-Bedingungen (mit Nebenbedingungen)</div>
+  <div class="formula">Lagrange-Funktion:
+  L(x, μ, λ) = f(x) + ∑ μᵢgᵢ(x) + ∑ λⱼhⱼ(x)
+
+KKT-Bedingungen (notwendig bei geeigneten Regularitätsbedingungen):
+  (1) Stationarität:        ∇ₓL(x*,μ*,λ*) = 0
+  (2) Primal zulässig:      gᵢ(x*) ≤ 0  und  hⱼ(x*) = 0
+  (3) Dual zulässig:        μᵢ ≥ 0
+  (4) Kompl. Schlupf:       μᵢ · gᵢ(x*) = 0   ∀ i
+
+Bei konvexem Problem: KKT-Bedingungen sind notwendig UND hinreichend!</div>
+</div>
+
+<!-- VL10 -->
+<div class="content" id="tab-vl10">
+  <span class="badge bb">VL 10</span>
+  <div class="section-title">Gradientenverfahren</div>
+  <div class="insight">Idee: Nutze den negativen Gradienten als Abstiegsrichtung. Iteriere bis Konvergenz zu einem stationären Punkt.</div>
+  <div class="formula">Gradientenabstieg:
+  x^(k+1) = x^(k) − α_k · ∇f(x^(k))
+
+α_k = Schrittweite (Lernrate)
+  • Zu groß  → Divergenz / Oszillation
+  • Zu klein → Sehr langsame Konvergenz
+  • Optimal → Liniensuche erforderlich</div>
+  <div class="section-title">Schrittweitenstrategien</div>
+  <div class="tw"><table>
+    <tr><th>Strategie</th><th>Beschreibung</th><th>Eigenschaft</th></tr>
+    <tr><td>Exakte Liniensuche</td><td>αₖ = argmin f(x^(k) − α∇f(x^(k)))</td><td>Optimal, teuer</td></tr>
+    <tr><td>Armijo-Bedingung</td><td>Hinreichende Reduktion gefordert: f(x−α∇f) ≤ f(x) − c₁α||∇f||²</td><td>Effizient, zuverlässig</td></tr>
+    <tr><td>Konstante Schrittweite</td><td>αₖ = const</td><td>Einfach, instabil bei großem α</td></tr>
+    <tr><td>Diminishing</td><td>αₖ → 0 mit ∑αₖ = ∞</td><td>Konvergenzgarantie für SGD</td></tr>
+  </table></div>
+  <div class="section-title">Erweiterte Verfahren im Vergleich</div>
+  <div class="tw"><table>
+    <tr><th>Verfahren</th><th>Update-Regel</th><th>Konvergenz</th><th>Aufwand pro Schritt</th></tr>
+    <tr><td>Gradientenabstieg</td><td>x − α∇f</td><td>Linear (O(1/k))</td><td>O(n)</td></tr>
+    <tr><td>Newton</td><td>x − H⁻¹∇f</td><td>Quadratisch</td><td>O(n³) (LGS lösen)</td></tr>
+    <tr><td>BFGS (Quasi-Newton)</td><td>x − B⁻¹∇f, B ≈ H</td><td>Superlinear</td><td>O(n²)</td></tr>
+    <tr><td>L-BFGS</td><td>Gedächtnissparende BFGS-Variante</td><td>Superlinear</td><td>O(nm), m klein</td></tr>
+    <tr><td>SGD</td><td>x − α∇fᵢ (Mini-Batch)</td><td>Sublinear (O(1/√k))</td><td>O(Batchgröße)</td></tr>
+  </table></div>
+  <div class="section-title">Konvergenz</div>
+  <div class="two-col">
+    <div class="ok"><strong>Konvexe Probleme:</strong> Konvergenz zum globalen Minimum garantiert. Rate hängt von der Konditionszahl κ = λ_max/λ_min der Hesse-Matrix ab: schlecht konditioniert → zigzag, langsam.</div>
+    <div class="warn"><strong>Nichtkonvexe Probleme:</strong> Nur Konvergenz zu stationären Punkten garantiert. Kein globales Minimum garantiert. Startpunkt-abhängig.</div>
+  </div>
+  <div class="section-title">Praxis: Deep Learning</div>
+  <div class="ok">In Deep Learning ist die Verlustfunktion hochdimensional und nichtkonvex. Trotzdem funktioniert SGD mit Momentum (Adam, RMSprop) sehr gut — da das Netz in der Praxis kein scharfes lokales Minimum benötigt, sondern ein ausreichend flaches.</div>
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  var el = document.getElementById('tab-' + id);
+  if (el) el.classList.add('active');
+  var map = {'uebersicht':0,'vl1':1,'vl2':2,'vl3':3,'vl4':4,'vl5':5,'vl6':6,'vl7':7,'vl8':8,'vl9':9,'vl10':10};
+  var btns = document.querySelectorAll('.nav-btn');
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
