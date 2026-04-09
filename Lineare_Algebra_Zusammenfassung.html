@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineare Algebra — Interaktive Zusammenfassung</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #efefec;
+    --text: #1a1a1a; --text2: #555; --text3: #888;
+    --blue: #1a6fbd; --blue-bg: #e8f1fb; --blue-border: #378ADD;
+    --green: #0f6e56; --green-bg: #e1f5ee; --green-border: #1D9E75;
+    --amber: #7a4a0a; --amber-bg: #faeeda; --amber-border: #BA7517;
+    --red: #991f1f; --red-bg: #fcebeb; --red-border: #E24B4A;
+    --purple: #3c3489; --purple-bg: #eeedfe; --purple-border: #7F77DD;
+    --border: #e0ddd5; --radius: 8px; --radius-lg: 12px;
+    --mono: 'Courier New', monospace; --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; }
+  .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
+  .nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .nb { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; text-align: left; transition: border-color 0.15s; }
+  .nb:hover { border-color: #aaa; }
+  .nb.on { border: 2px solid var(--blue-border); background: var(--blue-bg); }
+  .nb .ni { font-size: 14px; font-family: var(--mono); color: var(--text2); margin-bottom: 4px; }
+  .nb .nl { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .nb .ns { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .nb.on .nl, .nb.on .ni { color: var(--blue); }
+  .panel { display: none; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); margin-bottom: 1rem; }
+  .panel.on { display: block; }
+  .ph { padding: 1.25rem 1.25rem 0; }
+  .pt { font-size: 18px; font-weight: 600; }
+  .ps { font-size: 13px; color: var(--text2); margin-top: 3px; margin-bottom: 1rem; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 1.25rem 1rem; border-bottom: 1px solid var(--border); }
+  .tb { font-size: 12px; padding: 4px 13px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg2); cursor: pointer; color: var(--text2); }
+  .tb:hover { border-color: #aaa; }
+  .tb.on { background: var(--bg); border-color: var(--text2); color: var(--text); font-weight: 600; }
+  .tc { display: none; padding: 1.25rem; }
+  .tc.on { display: block; }
+  .sl { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 7px; margin-top: 18px; }
+  .sl:first-child { margin-top: 0; }
+  .def { background: var(--blue-bg); border-left: 3px solid var(--blue-border); padding: 10px 13px; margin-bottom: 11px; font-size: 14px; line-height: 1.65; }
+  .frm { background: var(--green-bg); border-left: 3px solid var(--green-border); padding: 10px 13px; margin-bottom: 11px; font-size: 13px; font-family: var(--mono); line-height: 1.9; }
+  .why { background: var(--amber-bg); border-left: 3px solid var(--amber-border); padding: 10px 13px; margin-bottom: 11px; font-size: 14px; line-height: 1.65; }
+  .wrn { background: var(--red-bg); border-left: 3px solid var(--red-border); padding: 10px 13px; margin-bottom: 11px; font-size: 14px; line-height: 1.65; }
+  .step { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; }
+  .sn { min-width: 26px; height: 26px; border-radius: 50%; background: var(--blue-bg); color: var(--blue); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-family: var(--mono); border: 1px solid var(--blue-border); }
+  .st { font-size: 14px; line-height: 1.6; }
+  .ml { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; background: var(--bg2); border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; line-height: 1.5; }
+  .md { min-width: 8px; height: 8px; border-radius: 50%; background: var(--purple-border); margin-top: 4px; flex-shrink: 0; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 11px; }
+  .cd { background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; line-height: 1.6; border: 1px solid var(--border); }
+  .cd b { font-weight: 700; display: block; margin-bottom: 3px; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; }
+  .cmp { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 11px; font-size: 13px; }
+  .cmp-r { display: grid; grid-template-columns: 1fr 1fr; }
+  .cmp-h { background: var(--bg2); padding: 7px 11px; font-weight: 700; font-size: 11px; color: var(--text2); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .04em; }
+  .cmp-c { padding: 7px 11px; border-bottom: 1px solid var(--border); line-height: 1.45; }
+  .cmp-c:nth-child(odd) { border-right: 1px solid var(--border); }
+  .ab { margin-top: 14px; font-size: 13px; padding: 7px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg); cursor: pointer; color: var(--text); font-family: var(--sans); }
+  .ab:hover { background: var(--bg2); }
+  strong { font-weight: 600; }
+  @media (max-width: 500px) { .g2, .cmp-r { grid-template-columns: 1fr; } .nav { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Lineare Algebra — Interaktive Zusammenfassung</h1>
+  <p class="subtitle">Fortgeschrittene Lineare Algebra & Analytische Geometrie · W4DSKI 108.1 · Prof. Dr. Niedergesäss</p>
+  <div class="nav" id="nav"></div>
+  <div id="panels"></div>
+</div>
+<script>
+const T=[
+  {id:"inv",sym:"A⁻¹",label:"Inverse einer Matrix",sub:"Kap. 2"},
+  {id:"eig",sym:"λ, v",label:"Eigenwerte & Eigenvektoren",sub:"Kap. 3"},
+  {id:"ska",sym:"v·w",label:"Skalarprodukt & Vektorräume",sub:"Kap. 4"},
+  {id:"nor",sym:"‖v‖",label:"Norm, Abstand, Winkel",sub:"Kap. 5"},
+  {id:"onb",sym:"ONB",label:"Orthonormalbasen",sub:"Kap. 6"},
+  {id:"pro",sym:"p(v)",label:"Orth. Projektion",sub:"Kap. 7"},
+  {id:"zer",sym:"SVD",label:"Matrixzerlegungen",sub:"Kap. 8"},
+];
+
+const D={
+inv:{title:"Inverse einer Matrix",sub:"Wann existiert sie, wie berechnet man sie, wozu braucht man sie?",
+tabs:["Begriff & Existenz","Berechnung","Eigenschaften","ML-Anwendungen"],
+c:[
+`<p class="sl">Was ist die Inverse?</p>
+<div class="def">Die Inverse A⁻¹ einer quadratischen Matrix A ist die eindeutige Matrix mit<br><br>
+<span style="font-family:monospace;font-size:13px">A · A⁻¹ = A⁻¹ · A = I</span><br><br>
+Das ist das Matrix-Äquivalent zur Division — I entspricht der 1 im Zahlensystem. Für reelle Zahlen gilt α · α⁻¹ = 1; für Matrizen gilt A · A⁻¹ = I.</div>
+<p class="sl">Existenzkriterium & Beweis</p>
+<div class="frm">A invertierbar  ⟺  det(A) ≠ 0<br><br>Beweis (kurz): Falls AX = I, dann |A|·|X| = |I| = 1,<br>also muss |A| ≠ 0 sein. Das ist notwendig und hinreichend.<br><br>det(A) = 0  →  A singulär  →  keine Inverse existiert.</div>
+<p class="sl">Eindeutigkeit der Inversen</p>
+<div class="def">Wenn AX = I und AY = I, dann folgt:<br>Y = IY = (XA)Y = X(AY) = XI = X<br><br>Die Inverse ist also eindeutig — falls sie existiert.</div>
+<p class="sl">Zusammenhang zu Eigenwerten</p>
+<div class="def">A ist invertierbar ⟺ 0 ist kein Eigenwert von A.<br>Denn: det(A) = Produkt aller Eigenwerte. Ist ein Eigenwert 0, wird det(A) = 0.</div>`,
+
+`<p class="sl">Direkte Formel für 2×2</p>
+<div class="frm">A = [[a, b], [c, d]]<br><br>A⁻¹ = 1/(ad−bc) · [[d, −b], [−c, a]]<br><br>Gültig wenn det(A) = ad−bc ≠ 0.</div>
+<p class="sl">Allgemein: Gauss-Jordan-Verfahren</p>
+<div class="step"><div class="sn">1</div><div class="st">Bilde erweiterte Matrix (A | I): A links, Einheitsmatrix I rechts anfügen</div></div>
+<div class="step"><div class="sn">2</div><div class="st">Elementare Zeilenoperationen: Zeilen skalieren, Vielfache addieren, tauschen</div></div>
+<div class="step"><div class="sn">3</div><div class="st">Ziel: linke Seite zur Einheitsmatrix I umformen</div></div>
+<div class="step"><div class="sn">4</div><div class="st">Die rechte Seite ist dann A⁻¹</div></div>
+<div class="step"><div class="sn">5</div><div class="st">Falls I nicht erreichbar → A hat keine Inverse</div></div>
+<p class="sl">Nützliche Implikation</p>
+<div class="frm">AX = I  ⟹  X = A⁻¹  (von links mit A⁻¹ multiplizieren)<br>YA = I  ⟹  Y = A⁻¹  (von rechts mit A⁻¹ multiplizieren)<br><br>Jede der beiden Gleichungen impliziert die andere!</div>`,
+
+`<p class="sl">Rechenregeln</p>
+<div class="g2">
+<div class="cd"><b>Doppelte Inverse</b>(A⁻¹)⁻¹ = A<br>Die Inverse der Inversen ist wieder A</div>
+<div class="cd"><b>Produkt (Achtung!)</b>(AB)⁻¹ = B⁻¹A⁻¹<br>Reihenfolge kehrt sich um!</div>
+<div class="cd"><b>Transponierte</b>(Aᵀ)⁻¹ = (A⁻¹)ᵀ<br>Transposition und Inversion kommutieren</div>
+<div class="cd"><b>Skalierung</b>(cA)⁻¹ = c⁻¹ A⁻¹<br>für alle c ≠ 0</div>
+</div>
+<p class="sl">Gleichungssysteme lösen via Inverse</p>
+<div class="frm">AX = B  ⟺  X = A⁻¹B  (falls |A| ≠ 0)<br>YA = B  ⟺  Y = BA⁻¹<br><br>Wichtig: A⁻¹B ≠ BA⁻¹ im Allgemeinen!<br>(Matrixmultiplikation ist nicht kommutativ)</div>
+<p class="sl">Wichtige Warnung</p>
+<div class="wrn">Für Matrizen gibt es keine Division! I/A hat keine Bedeutung. Man muss immer explizit schreiben, von welcher Seite man mit A⁻¹ multipliziert. A⁻¹B und BA⁻¹ sind typischerweise verschiedene Matrizen.</div>`,
+
+`<div class="ml"><div class="md"></div><div><strong>Lineare Regression (OLS):</strong> Die Normalgleichung lautet x̂ = (AᵀA)⁻¹Aᵀb — die Pseudoinverse gibt die Least-Squares-Lösung. AᵀA muss invertierbar sein (Spalten von A linear unabhängig).</div></div>
+<div class="ml"><div class="md"></div><div><strong>Mahalanobis-Distanz:</strong> d(v,w) = √((v−w)ᵀ Σ⁻¹ (v−w)) nutzt die Inverse der Kovarianzmatrix Σ für skalierungs- und korrelationsinvariante Abstände.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Eigenwertzerlegung & SVD:</strong> Beide Verfahren nutzen invertierbare Matrizen S⁻¹ bzw. Qᵀ = Q⁻¹ als Basiswechselmatrizen. Das Spektraltheorem nutzt orthogonale Inverse.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Numerische Praxis:</strong> Man berechnet A⁻¹ selten explizit — stattdessen löst man AX=B mit LU-Zerlegung oder Cholesky-Zerlegung effizienter und numerisch stabiler.</div></div>
+<div class="why">Merke: Die Inverse ist konzeptionell wichtig, aber in der Praxis vermeidet man ihre explizite Berechnung aus Effizienz- und Stabilitätsgründen.</div>`
+]},
+
+eig:{title:"Eigenwerte & Eigenvektoren",sub:"Herzstück von PCA, SVD und spektralen Methoden",
+tabs:["Begriff & Definition","Berechnung","Eigenraum & Diagonalisierung","ML-Anwendungen"],
+c:[
+`<p class="sl">Grundidee</p>
+<div class="def">Ein Vektor v ≠ 0 heißt Eigenvektor von A, wenn A ihn nur streckt oder staucht — ihn nicht dreht. Der Streckfaktor λ ist der Eigenwert:<br><br>
+<span style="font-family:monospace">A · v = λ · v</span><br><br>
+v gibt eine "Hauptrichtung" der Transformation an. λ gibt an, wie stark in diese Richtung gestreckt/gestaucht wird.</div>
+<p class="sl">Einschränkungen</p>
+<div class="wrn">Der Nullvektor 0 ist kein Eigenvektor — A·0 = λ·0 = 0 würde für jedes λ gelten. Er wird explizit ausgeschlossen.<br><br>Der Wert λ=0 kann aber Eigenwert sein (wenn Av=0 für ein v≠0, d.h. A nicht invertierbar).</div>
+<p class="sl">Lineare Unabhängigkeit</p>
+<div class="def">Eigenvektoren zu verschiedenen Eigenwerten sind immer linear unabhängig. Das ist die Grundlage der Diagonalisierbarkeit und lässt sich per Induktion beweisen.</div>
+<p class="sl">Zusammenhang Invertierbarkeit</p>
+<div class="frm">A invertierbar  ⟺  0 kein Eigenwert von A<br><br>det(A) = λ₁ · λ₂ · ... · λₙ<br>(Produkt aller Eigenwerte)</div>`,
+
+`<p class="sl">Schritt-für-Schritt Berechnung</p>
+<div class="step"><div class="sn">1</div><div class="st">Ansatz: Av = λv ist äquivalent zu (A−λI)v = 0</div></div>
+<div class="step"><div class="sn">2</div><div class="st">Nichttriviale Lösung v≠0 existiert ⟺ det(A−λI) = 0</div></div>
+<div class="step"><div class="sn">3</div><div class="st">Löse das charakteristische Polynom det(A−λI)=0 → Eigenwerte λ₁, λ₂, ...</div></div>
+<div class="step"><div class="sn">4</div><div class="st">Für jeden λᵢ: löse das LGS (A−λᵢI)v = 0</div></div>
+<div class="step"><div class="sn">5</div><div class="st">Nichttriviale Lösungen v≠0 sind die Eigenvektoren zum Eigenwert λᵢ</div></div>
+<p class="sl">Charakteristisches Polynom</p>
+<div class="frm">χ_A(λ) = det(A − λI) = 0<br><br>= (−1)ⁿλⁿ + c_{n−1}λⁿ⁻¹ + ... + c₀<br><br>Für 2×2: λ² − Spur(A)·λ + det(A) = 0<br><br>A hat höchstens n Eigenwerte (Grad des Polynoms)</div>
+<p class="sl">Vollständiges Beispiel (2×2)</p>
+<div class="frm">A = [[3,−1],[1,1]]<br>χ_A = (3−λ)(1−λ) − (−1)·1 = λ²−4λ+4 = (λ−2)²<br>→ λ = 2 (doppelter Eigenwert)<br>(A−2I)v = [[1,−1],[1,−1]]v = 0<br>→ v = t·[1,1]ᵀ,  t≠0</div>`,
+
+`<p class="sl">Eigenraum</p>
+<div class="frm">Eig_A(λ) = {v ∈ ℝⁿ | (A − λI)v = 0}<br>         = Kern(A − λI)<br><br>= alle Eigenvektoren zu λ + Nullvektor.<br>Ist ein Untervektorraum von ℝⁿ.</div>
+<p class="sl">Diagonalisierbarkeit</p>
+<div class="def">A ist diagonalisierbar ⟺ Eigenvektoren bilden eine Basis von ℝⁿ. Dann gilt:<br><br>
+<span style="font-family:monospace">D = S⁻¹AS</span><br><br>
+S = Matrix der Eigenvektoren (spaltenweise), D = Diagonalmatrix der Eigenwerte. Aus AS = SD folgt direkt D = S⁻¹AS.</div>
+<p class="sl">Spektraltheorem (symmetrische Matrizen)</p>
+<div class="def">Für jede symmetrische Matrix A ∈ ℝⁿˣⁿ gilt:<br>• Alle Eigenwerte sind reell<br>• Eigenvektoren bilden eine Orthonormalbasis<br>• A = Q·D·Qᵀ mit orthogonaler Matrix Q (Qᵀ=Q⁻¹)<br><br>Jede symmetrische Matrix ist diagonalisierbar!</div>
+<p class="sl">Rechenvorteile</p>
+<div class="frm">Aᵏ = S·Dᵏ·S⁻¹,  Dᵏ = diag(λ₁ᵏ,...,λₙᵏ)  trivial<br>A⁻¹ = S·D⁻¹·S⁻¹,  D⁻¹ = diag(1/λ₁,...,1/λₙ)<br>det(A) = λ₁·λ₂·...·λₙ</div>`,
+
+`<div class="ml"><div class="md"></div><div><strong>PCA (Hauptkomponentenanalyse):</strong> Eigenvektoren der Kovarianzmatrix C = XᵀX/n sind die Hauptkomponenten. Eigenwerte = erklärte Varianz je Richtung. Projektion auf die k größten Eigenvektoren = Dimensionsreduktion.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Spektralclustering:</strong> Eigenvektoren der Graph-Laplace-Matrix L = D−W zeigen Community-Struktur im Netzwerk — ähnliche Knoten liegen nahe beieinander im Eigenvektor-Raum.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Markov-Ketten & PageRank:</strong> Aᵏ für großes k via EVZ: Aᵏ = SDᵏS⁻¹. Die stationäre Verteilung ist der Eigenvektor zum Eigenwert 1.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Neuronale Netze:</strong> Eigenwerte der Gewichtsmatrizen bestimmen ob Gradienten im Training explodieren (|λ|>1) oder verschwinden (|λ|<1) — Grundlage der Stabilitätsanalyse.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Basis der SVD:</strong> Singulärwerte σᵢ = √(Eigenwerte von AᵀA). Rechte Singulärvektoren V = Eigenvektoren von AᵀA; linke U = Eigenvektoren von AAᵀ.</div></div>`
+]},
+
+ska:{title:"Skalarprodukt & Vektorräume",sub:"Von kanonisch zu euklidisch — Struktur in abstrakten Räumen",
+tabs:["Kanonisches SP","Euklidisches SP","Vektorräume","Positiv definite Matrizen"],
+c:[
+`<p class="sl">Definition</p>
+<div class="frm">v · w = vᵀw = Σᵢ vᵢwᵢ  ∈ ℝ<br><br>Ergebnis ist eine reelle Zahl — kein Vektor!</div>
+<p class="sl">Vier Eigenschaften (macht es zur Bilinearform)</p>
+<div class="step"><div class="sn">L1</div><div class="st"><strong>Linearität im 1. Argument:</strong> (v+v')·w = v·w + v'·w und (λv)·w = λ(v·w)</div></div>
+<div class="step"><div class="sn">L2</div><div class="st"><strong>Linearität im 2. Argument:</strong> folgt automatisch aus der Symmetrie</div></div>
+<div class="step"><div class="sn">S</div><div class="st"><strong>Symmetrie:</strong> v·w = w·v</div></div>
+<div class="step"><div class="sn">P</div><div class="st"><strong>Positive Definitheit:</strong> v·v ≥ 0, und v·v = 0 ⟹ v = 0</div></div>
+<p class="sl">Norm aus dem Skalarprodukt</p>
+<div class="frm">‖v‖ = √(v·v) ≥ 0<br><br>Existiert wegen positiver Definitheit (v·v ≥ 0)</div>
+<p class="sl">Warnung: nicht kürzen!</p>
+<div class="wrn">a·v = a·w bedeutet NICHT v = w. Es folgt nur: a·(v−w) = 0, d.h. (v−w) ist orthogonal zu a.</div>`,
+
+`<p class="sl">Warum verallgemeinern?</p>
+<div class="why">Das euklidische Skalarprodukt überträgt Norm, Winkel und Orthogonalität auf beliebige reelle Vektorräume V. Damit kann man auch in abstrakten Räumen geometrisch denken.</div>
+<p class="sl">Definition</p>
+<div class="def">Eine Abbildung V×V→ℝ heißt euklidisches Skalarprodukt wenn:<br><br>
+• Linearität im 1. Argument<br>
+• Symmetrie: v·w = w·v (→ Linearität im 2. folgt!)<br>
+• Positive Definitheit: v·v ≥ 0 und v·v=0 ⟹ v=0<br><br>
+V heißt dann euklidischer Vektorraum.</div>
+<p class="sl">Konstruktion via Matrizen</p>
+<div class="frm">v · w = vᵀAw<br><br>ist euklidisches Skalarprodukt, wenn A<br>symmetrisch und positiv definit ist.<br><br>Für A = I: kanonisches Skalarprodukt (Spezialfall)</div>
+<p class="sl">Geometrische Bedeutung</p>
+<div class="why">Die Matrix A wirkt als Gewichtungsmatrix: sie verändert, wie Abstände und Winkel gemessen werden — angepasst an die Datenstruktur. Das ist die Grundlage der Mahalanobis-Distanz in ML.</div>`,
+
+`<p class="sl">Definition Vektorraum</p>
+<div class="def">Nichtleere Menge V mit Addition und Skalarmultiplikation, die im Raum bleiben:<br><br>
+a, b ∈ V ⟹ a+b ∈ V &nbsp;(Abgeschlossenheit Addition)<br>
+a ∈ V, λ ∈ ℝ ⟹ λ·a ∈ V &nbsp;(Abgeschlossenheit Skalierung)</div>
+<p class="sl">Untervektorraum prüfen (3-Schritte-Test)</p>
+<div class="step"><div class="sn">1</div><div class="st">Enthält U den Nullvektor? (Notwendige Bedingung)</div></div>
+<div class="step"><div class="sn">2</div><div class="st">u, w ∈ U ⟹ u+w ∈ U? (Abgeschlossenheit Addition)</div></div>
+<div class="step"><div class="sn">3</div><div class="st">u ∈ U, λ ∈ ℝ ⟹ λu ∈ U? (Abgeschlossenheit Skalierung)</div></div>
+<p class="sl">ML-Beispiel: Text Embeddings als Vektorraum</p>
+<div class="ml"><div class="md"></div><div><strong>Semantische Arithmetik:</strong> w_König − w_Mann + w_Frau ≈ w_Königin — Vektorraumstruktur macht semantische Rechenoperationen möglich</div></div>
+<div class="ml"><div class="md"></div><div><strong>Skalarmultiplikation:</strong> λ·w mit λ>1 verstärkt, 0<λ<1 schwächt die semantische Bedeutung des Wortvektors</div></div>
+<div class="ml"><div class="md"></div><div><strong>Feature Spaces:</strong> Merkmalsräume in ML sind typischerweise Vektorräume — lineare Modelle nutzen diese Struktur explizit</div></div>`,
+
+`<p class="sl">Definition</p>
+<div class="frm">A pos. definit  ⟺  xᵀAx > 0  für alle x ≠ 0<br>A neg. definit  ⟺  xᵀAx < 0  für alle x ≠ 0<br><br>Voraussetzung: A muss symmetrisch sein!</div>
+<p class="sl">Kriterium 1: Eigenwerte</p>
+<div class="def">Alle Eigenwerte von A positiv ⟺ A positiv definit.<br>Alle Eigenwerte negativ ⟺ A negativ definit.</div>
+<p class="sl">Kriterium 2: Hauptdeterminanten (Hurwitz)</p>
+<div class="frm">Die n Hauptdeterminanten von A:<br>|a₁₁|,  det([[a₁₁,a₁₂],[a₂₁,a₂₂]]),  ...,  det(A)<br><br>Alle > 0  →  positiv definit<br>Vorzeichen alternierend (−,+,−,...)  →  negativ definit</div>
+<p class="sl">ML-Anwendungen</p>
+<div class="ml"><div class="md"></div><div><strong>Konvexe Optimierung:</strong> f(x) konvex ⟺ Hesse-Matrix H = ∂²f/∂x² positiv semidefinit. Grundlage des Gradientenabstiegs.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Kovarianzmatrizen</strong> sind immer symmetrisch positiv semidefinit: xᵀΣx = xᵀE[(X−μ)(X−μ)ᵀ]x = E[‖(X−μ)ᵀx‖²] ≥ 0</div></div>
+<div class="ml"><div class="md"></div><div><strong>Kernel-Matrizen</strong> in SVMs müssen positiv semidefinit sein (Mercer-Bedingung) — sonst ist das Optimierungsproblem nicht konvex</div></div>`
+]},
+
+nor:{title:"Norm, Abstand, Winkel & Orthogonalität",sub:"Geometrie in beliebig vielen Dimensionen",
+tabs:["Norm","Abstand & Metrik","Winkel & Orthogonalität","ML-Anwendungen"],
+c:[
+`<p class="sl">Norm aus Skalarprodukt</p>
+<div class="frm">‖v‖ = √(v·v) ≥ 0</div>
+<p class="sl">Allgemeiner Normbegriff (ohne Skalarprodukt!)</p>
+<div class="def">N: V→ℝ≥0 heißt Norm wenn für alle v, w ∈ V und λ ∈ ℝ gilt:<br><br>
+• N(v) = 0 ⟺ v = 0 (Definitheit)<br>
+• N(λv) = |λ|·N(v) (Homogenität)<br>
+• N(v+w) ≤ N(v)+N(w) (Dreiecksungleichung)<br><br>
+Jedes Skalarprodukt liefert eine Norm. Aber nicht jede Norm kommt von einem Skalarprodukt!</div>
+<p class="sl">Wichtige Normen im ℝⁿ</p>
+<div class="g2">
+<div class="cd"><b>L2-Norm (euklidisch)</b>‖v‖₂ = √(Σ vᵢ²)<br>Kommt vom Skalarprodukt</div>
+<div class="cd"><b>L1-Norm (Manhattan)</b>‖v‖₁ = Σ |vᵢ|<br>Kein Skalarprodukt dahinter</div>
+<div class="cd"><b>L∞-Norm (Maximum)</b>‖v‖∞ = max|vᵢ|<br>Kein Skalarprodukt dahinter</div>
+<div class="cd"><b>Normierter Vektor</b>v̂ = v / ‖v‖<br>Hat Norm 1, gleiche Richtung</div>
+</div>
+<p class="sl">Cauchy-Schwarz-Ungleichung</p>
+<div class="frm">|v · w|  ≤  ‖v‖ · ‖w‖<br><br>Gleichheit ⟺ v und w linear abhängig.<br>Ermöglicht Winkeldefinition: cos α = v·w/(‖v‖·‖w‖) ∈ [−1,1]</div>`,
+
+`<p class="sl">Definition Abstand</p>
+<div class="frm">d(v, w) = ‖v − w‖ = ‖w − v‖  ≥ 0</div>
+<p class="sl">Eigenschaften einer Metrik</p>
+<div class="step"><div class="sn">1</div><div class="st">d(v,w) = 0 ⟺ v = w (Definitheit)</div></div>
+<div class="step"><div class="sn">2</div><div class="st">d(v,w) = d(w,v) (Symmetrie)</div></div>
+<div class="step"><div class="sn">3</div><div class="st">d(v,w) ≤ d(v,u) + d(u,w) (Dreiecksungleichung — folgt aus Cauchy-Schwarz)</div></div>
+<p class="sl">Kanonisch vs. euklidisch: Skalenproblem</p>
+<div class="why">Das kanonische Skalarprodukt behandelt alle Dimensionen gleich. Bei Features mit sehr unterschiedlichen Skalen (z.B. Körpergröße in m vs. Gewicht in kg) dominiert die Feature mit größerer Skala den Abstand.</div>
+<p class="sl">Mahalanobis-Distanz</p>
+<div class="frm">d_M(v,w) = √((v−w)ᵀ Σ⁻¹ (v−w))<br><br>Σ = Kovarianzmatrix der Population<br>→ skalierungs- und korrelationsinvariant</div>
+<div class="def">Skript-Beispiel: Mit kanonischem Abstand (d=0.6) gelten "dickes Kind" und "sportliche Frau" als ähnlich (gleiche 50 kg). Mit Mahalanobis (d=11.39 vs. d=6.58): die beiden Sportler werden als ähnlicher bewertet — das Gewicht wird relativ zur Bevölkerungsvarianz gewichtet.</div>`,
+
+`<p class="sl">Winkel zwischen Vektoren</p>
+<div class="frm">cos α = (v · w) / (‖v‖ · ‖w‖)<br><br>α = arccos(...)  ∈ [0, π]<br><br>Definiert für alle v, w ≠ 0 wegen Cauchy-Schwarz.</div>
+<p class="sl">Orthogonalität</p>
+<div class="def">v ⊥ w ⟺ v·w = 0 (Winkel = 90°)<br><br>• Der Nullvektor ist zu jedem Vektor orthogonal: 0·v = 0<br>• Kein v≠0 ist zu sich selbst orthogonal (pos. Definitheit: v·v > 0)<br>• v⊥w ⟺ w⊥v (Symmetrie des Skalarprodukts)</div>
+<p class="sl">Lineare Unabhängigkeit orthogonaler Vektoren</p>
+<div class="def">Jede Menge paarweise orthogonaler Vektoren (alle ≠0) ist linear unabhängig. Beweis: aus Σ μᵢvᵢ = 0 folgt durch Skalarprodukt mit vⱼ: μⱼ·‖vⱼ‖² = 0, also μⱼ = 0.</div>
+<p class="sl">Kosinus-Ähnlichkeit</p>
+<div class="frm">sim(v,w) = (v·w) / (‖v‖·‖w‖) = cos α<br><br>∈ [−1, 1]:<br>1 = gleiche Richtung<br>0 = orthogonal (kein gemeinsamer "Anteil")<br>−1 = entgegengesetzte Richtung</div>`,
+
+`<div class="ml"><div class="md"></div><div><strong>k-Nearest-Neighbor:</strong> Klassifikation anhand der k nächsten Nachbarn im gewählten Abstandsmaß. Wahl der Norm (L1, L2, Mahalanobis) beeinflusst das Ergebnis stark.</div></div>
+<div class="ml"><div class="md"></div><div><strong>k-Means Clustering:</strong> Minimiert Summe der quadratischen L2-Abstände aller Punkte zu ihrem Clusterzentrum. Cluster-Update = Mittelwert der zugewiesenen Punkte.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Regularisierung:</strong> L1 (Lasso): erzeugt sparse Lösungen, da L1-Ball Ecken hat. L2 (Ridge): bestraft alle Gewichte gleichmäßig. Beide sind Normen in ℝⁿ.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Semantic Search / RAG:</strong> Kosinus-Ähnlichkeit zwischen Embedding-Vektoren misst semantische Ähnlichkeit unabhängig von der Textlänge (Vektornorm).</div></div>
+<div class="ml"><div class="md"></div><div><strong>Transformer Attention:</strong> Attention(Q,K,V) = softmax(QKᵀ/√d)·V — QKᵀ ist Skalarprodukt-Matrix; Division durch √d normiert die Magnitude für stabile Softmax-Werte.</div></div>`
+]},
+
+onb:{title:"Orthonormalbasen & Gram-Schmidt",sub:"Basen mit maximaler geometrischer Struktur",
+tabs:["Basis & ONB","Gram-Schmidt-Verfahren","Darstellung & Koordinaten","ML-Anwendungen"],
+c:[
+`<p class="sl">Erinnerung: Basis</p>
+<div class="def">B = {b₁,...,bₘ} linear unabhängig heißt Basis von V, wenn jedes v ∈ V darstellbar als v = λ₁b₁ + ... + λₘbₘ. Der Vektor (λ₁,...,λₘ) heißt Koordinatenvektor.</div>
+<p class="sl">Orthogonalbasis vs. Orthonormalbasis</p>
+<div class="g2">
+<div class="cd"><b>Orthogonalbasis</b>bᵢ·bⱼ = 0 für i≠j<br>Vektoren paarweise senkrecht</div>
+<div class="cd"><b>Orthonormalbasis (ONB)</b>bᵢ·bⱼ = δᵢⱼ<br>Senkrecht + alle Länge 1</div>
+</div>
+<div class="frm">Kronecker-Delta: δᵢⱼ = 1 falls i=j,  0 falls i≠j<br><br>Kurz: Länge 1 (normiert) und paarweise orthogonal.</div>
+<p class="sl">Normierung</p>
+<div class="frm">v̂ = v / ‖v‖<br><br>Beweis: ‖v/‖v‖‖ = (1/‖v‖)·‖v‖ = 1  ✓</div>
+<p class="sl">Existenz</p>
+<div class="def">Jeder endlichdimensionale euklidische Vektorraum besitzt eine ONB. Das Gram-Schmidt-Verfahren konstruiert eine ONB aus jeder beliebigen Basis.</div>`,
+
+`<p class="sl">Grundidee</p>
+<div class="why">Nimm neuen Vektor aₖ₊₁ und entferne alle Anteile in Richtung der bereits konstruierten Basisvektoren b₁,...,bₖ (= subtrahiere ihre Projektionen). Der Rest cₖ₊₁ steht dann senkrecht auf allen bisherigen. Danach normieren.</div>
+<p class="sl">Rekursive Formel</p>
+<div class="frm">b₁ = a₁ / ‖a₁‖<br><br>cₖ₊₁ = aₖ₊₁ − Σᵢ₌₁ᵏ (bᵢ · aₖ₊₁) · bᵢ<br>bₖ₊₁ = cₖ₊₁ / ‖cₖ₊₁‖</div>
+<p class="sl">Für n=3 ausgeschrieben</p>
+<div class="step"><div class="sn">b₁</div><div class="st">b₁ = a₁ / ‖a₁‖</div></div>
+<div class="step"><div class="sn">c₂</div><div class="st">c₂ = a₂ − (a₂·b₁)·b₁ &nbsp;&nbsp;→&nbsp;&nbsp; b₂ = c₂ / ‖c₂‖</div></div>
+<div class="step"><div class="sn">c₃</div><div class="st">c₃ = a₃ − (a₃·b₁)·b₁ − (a₃·b₂)·b₂ &nbsp;&nbsp;→&nbsp;&nbsp; b₃ = c₃ / ‖c₃‖</div></div>
+<p class="sl">Orthogonalität verifizieren</p>
+<div class="frm">c₃ · b₂ = a₃·b₂ − (a₃·b₁)(b₁·b₂) − (a₃·b₂)(b₂·b₂)<br>       = a₃·b₂ − 0 − a₃·b₂·1 = 0  ✓<br><br>(b₁⊥b₂ → b₁·b₂=0 und ‖b₂‖=1 → b₂·b₂=1)</div>`,
+
+`<p class="sl">Darstellung bezüglich ONB</p>
+<div class="frm">Sei B = {b₁,...,bₙ} ONB von V. Dann:<br><br>v = Σᵢ (v · bᵢ) · bᵢ<br><br>Koordinaten: λᵢ = v · bᵢ  (nur ein Skalarprodukt!)</div>
+<div class="def">Großer Vorteil: Bei ONBs reicht ein Skalarprodukt pro Koordinate. Bei einer gewöhnlichen Basis müsste man ein n×n-Gleichungssystem lösen.</div>
+<p class="sl">Bei Orthogonalbasis (nicht normiert)</p>
+<div class="frm">λᵢ = (v · bᵢ) / (bᵢ · bᵢ) = (v · bᵢ) / ‖bᵢ‖²<br><br>(Zusätzliche Normierungskorrektur nötig)</div>
+<p class="sl">Vollständiges Beispiel</p>
+<div class="frm">ONB: b₁ = (1/√2)(1,1)ᵀ,  b₂ = (1/√2)(1,−1)ᵀ<br>Vektor: v = (3,2)ᵀ<br><br>λ₁ = v·b₁ = (3+2)/√2 = 5/√2<br>λ₂ = v·b₂ = (3−2)/√2 = 1/√2<br><br>v = (5/√2)·b₁ + (1/√2)·b₂  ✓</div>
+<p class="sl">Vorteile von ONBs</p>
+<div class="ml"><div class="md"></div><div>Koordinaten = einfache Skalarprodukte (kein LGS)</div></div>
+<div class="ml"><div class="md"></div><div>Abstände und Winkel bleiben erhalten (isometrische Darstellung)</div></div>
+<div class="ml"><div class="md"></div><div>Projektionen werden trivial: u = Σ(v·bᵢ)bᵢ</div></div>`,
+
+`<div class="ml"><div class="md"></div><div><strong>QR-Zerlegung:</strong> Gram-Schmidt erzeugt direkt A = QR mit Q orthogonal und R obere Dreiecksmatrix. Numerisch stabiler als direkte Matrixinversion für lineare Gleichungssysteme.</div></div>
+<div class="ml"><div class="md"></div><div><strong>PCA:</strong> Hauptkomponenten = Eigenvektoren der Kovarianzmatrix = ONB im Feature-Raum. Projektion der Datenpunkte auf die ersten k Basisvektoren = Dimensionsreduktion mit minimalem Informationsverlust.</div></div>
+<div class="ml"><div class="md"></div><div><strong>SVD:</strong> Die Matrizen U und V in A = UΣVᵀ sind orthogonale Matrizen. Ihre Spalten bilden ONBen in ℝᵐ und ℝⁿ. Gram-Schmidt ist ein Baustein der SVD-Berechnung.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Fourier-Analyse:</strong> Sinus/Kosinus-Funktionen bilden eine ONB im Funktionenraum L²([−π,π]). Fourier-Koeffizienten sind Skalarprodukte (Integrale) — genau wie bei endlichdim. ONBen.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Orthogonale Gewichtsinitialisierung:</strong> Neuronale Netze mit orthogonal initialisierten Gewichtsmatrizen konvergieren oft stabiler (Saxe et al. 2013).</div></div>`
+]},
+
+pro:{title:"Orthogonale Projektion & orth. Komplement",sub:"Nächster Punkt, minimaler Abstand, Grundlage der Regression",
+tabs:["Orth. Komplement","Projektionssatz","Berechnung","ML-Anwendungen"],
+c:[
+`<p class="sl">Untervektorraum</p>
+<div class="def">U ⊂ V heißt Untervektorraum wenn u+w ∈ U und λu ∈ U für alle u,w∈U, λ∈ℝ. Ein Untervektorraum ist selbst ein Vektorraum.</div>
+<p class="sl">Definition: Orthogonales Komplement</p>
+<div class="frm">U⊥ = {v ∈ V | v · u = 0  für alle u ∈ U}<br><br>= alle Vektoren senkrecht auf dem gesamten U.</div>
+<div class="def">U⊥ ist immer ein Untervektorraum von V (Beweis: Linearität des Skalarprodukts). Der Nullvektor liegt immer in U⊥, da 0·u = 0 für alle u.</div>
+<p class="sl">Dimensionsformel & eindeutige Zerlegung</p>
+<div class="frm">dim(U) + dim(U⊥) = dim(V)<br><br>Jedes v lässt sich eindeutig zerlegen:<br>v = u + u'  mit u ∈ U und u' ∈ U⊥</div>
+<p class="sl">Beispiele</p>
+<div class="def">In ℝ³: U = span{(1,1,1)ᵀ} (Gerade durch Ursprung) → U⊥ ist die Ebene aller Vektoren senkrecht auf (1,1,1)ᵀ. dim=1 + dim=2 = dim(ℝ³)=3 ✓<br><br>In ℝ²: {(1,−1)ᵀ}⊥ = {(1,1)ᵀ}</div>`,
+
+`<p class="sl">Projektionssatz</p>
+<div class="def">Sei U Untervektorraum eines endlichdim. euklidischen Vektorraums V. Zu jedem v ∈ V existiert genau ein u ∈ U mit:<br><br>
+<span style="font-family:monospace">v − u ⊥ U</span> &nbsp;&nbsp;(d.h. v−u ∈ U⊥)<br><br>
+u ist der eindeutige Punkt in U, der v am nächsten liegt.</div>
+<p class="sl">Orthogonale Projektion als Abbildung</p>
+<div class="frm">p: V → U,   v ↦ u<br><br>u' = v − u ∈ U⊥  ("Rest" / Fehler)</div>
+<p class="sl">Minimaler Abstand</p>
+<div class="frm">‖v − u‖ ≤ ‖v − w‖  für alle w ∈ U<br><br>‖u'‖ = ‖v − u‖ = minimaler Abstand von v zu U</div>
+<div class="def">Geometrisch: u' steht senkrecht auf U. Dadurch ist u die "Schattenprojektion" von v auf U — analog zum Schatten eines Stabs auf eine Wand bei senkrechtem Licht.</div>`,
+
+`<p class="sl">Allgemeine Berechnung (beliebige Basis)</p>
+<div class="step"><div class="sn">1</div><div class="st">Schreibe Basis von U als Spalten der Matrix: A = (b₁ | ... | bᵣ)</div></div>
+<div class="step"><div class="sn">2</div><div class="st">Löse die Normalgleichung: AᵀA·x = Aᵀv</div></div>
+<div class="step"><div class="sn">3</div><div class="st">Projektion berechnen: u = A·x = Σᵢ xᵢbᵢ</div></div>
+<div class="step"><div class="sn">4</div><div class="st">Minimaler Abstand: ‖v − u‖</div></div>
+<div class="def">AᵀA ist invertierbar (wenn b₁,...,bᵣ linear unabhängig) → Normalgleichung hat immer eindeutige Lösung.</div>
+<p class="sl">Vereinfachung mit ONB (empfohlen!)</p>
+<div class="frm">Wenn {b₁,...,bᵣ} ONB von U ist:<br><br>u = Σᵢ (v · bᵢ) · bᵢ  (direkte Formel, kein LGS!)</div>
+<p class="sl">Skalarprodukt als Projektion (auf normierten Vektor)</p>
+<div class="frm">Für ‖b‖ = 1:<br>(x · b) · b  = Projektion von x auf span{b}<br><br>x = (x·b)·b + [x − (x·b)·b]<br>     ↑ Anteil in span{b}   ↑ Anteil in {b}⊥</div>`,
+
+`<div class="ml"><div class="md"></div><div><strong>Lineare Regression (OLS):</strong> Ax≈b hat keine exakte Lösung wenn m>n (mehr Gleichungen als Unbekannte). Die Normalgleichung AᵀAx = Aᵀb ist die orthogonale Projektion von b auf den Spaltenraum von A. Minimiert ‖Ax−b‖².</div></div>
+<div class="ml"><div class="md"></div><div><strong>PCA:</strong> Projektion der Datenpunkte auf k-dimensionale Unterräume mit maximaler Varianz. Minimiert den mittleren quadratischen Rekonstruktionsfehler über alle möglichen k-dimensionalen Unterräume (Eckart-Young).</div></div>
+<div class="ml"><div class="md"></div><div><strong>Signal-Denoising:</strong> Verrauschtes Signal wird auf "sinnvollen" Signalunterraum projiziert. Rauschen liegt weitgehend im orthogonalen Komplement U⊥ und wird damit herausgefiltert.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Überbestimmte Systeme:</strong> Wenn m>n Gleichungen vorliegen, gibt es meist keine exakte Lösung. Die Projektion auf den Spaltenraum gibt die Least-Squares-Lösung mit minimalem Fehler.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Gram-Schmidt als Projektion:</strong> Das Verfahren besteht aus sukzessiven orthogonalen Projektionen: cₖ₊₁ = aₖ₊₁ − Σ(bᵢ·aₖ₊₁)bᵢ = aₖ₊₁ minus seine Projektion auf span{b₁,...,bₖ}.</div></div>`
+]},
+
+zer:{title:"Matrixzerlegungen",sub:"Cholesky, Eigenwertzerlegung (EVZ) und SVD",
+tabs:["Cholesky","Eigenwertzerlegung","SVD","Vergleich & ML"],
+c:[
+`<p class="sl">Idee & Motivation</p>
+<div class="why">Für eine symmetrische, positiv definite Matrix A suchen wir eine Zerlegung analog zur Quadratwurzel: 9 = 3·3 → A = L·Lᵀ. L ist eine untere Dreiecksmatrix.</div>
+<p class="sl">Definition & Eindeutigkeit</p>
+<div class="frm">A = L · Lᵀ<br><br>A: symmetrisch, positiv definit (n×n)<br>L: untere Dreiecksmatrix mit lᵢᵢ > 0<br><br>L ist eindeutig bestimmt!</div>
+<p class="sl">Berechnung (3×3)</p>
+<div class="frm">Diagonalelemente (Wurzeln):<br>l₁₁ = √a₁₁<br>l₂₂ = √(a₂₂ − l²₂₁)<br>l₃₃ = √(a₃₃ − l²₃₁ − l²₃₂)<br><br>Unterhalb der Diagonale:<br>l₂₁ = a₂₁ / l₁₁<br>l₃₁ = a₃₁ / l₁₁<br>l₃₂ = (a₃₂ − l₃₁·l₂₁) / l₂₂</div>
+<p class="sl">Anwendungen</p>
+<div class="ml"><div class="md"></div><div><strong>Gleichungssysteme lösen:</strong> Ax=b ⟺ LLᵀx=b → erst Ly=b (Vorwärtseinsetzen), dann Lᵀx=y (Rückwärtseinsetzen). Effizienter als Gauss für pos. def. Matrizen.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Gaussian Processes & Bayes. ML:</strong> Kovarianzmatrizen per Cholesky zerlegen um Stichproben zu ziehen: x = Lz mit z∼N(0,I). Auch: log det(A) = 2·Σᵢ log(lᵢᵢ).</div></div>`,
+
+`<p class="sl">Definition & Existenz</p>
+<div class="frm">A = S · D · S⁻¹<br><br>S = (b₁|...|bₙ): Eigenvektoren als Spalten<br>D = diag(λ₁,...,λₙ): Eigenwerte<br><br>Herleitung: AS = SD  →  D = S⁻¹AS</div>
+<p class="sl">Existenz: Wann ist A diagonalisierbar?</p>
+<div class="def">A diagonalisierbar ⟺ Eigenvektoren bilden eine Basis von ℝⁿ. Hinreichend: n verschiedene Eigenwerte (dann automatisch linear unabhängig). Symmetrische Matrizen: immer diagonalisierbar (Spektraltheorem).</div>
+<p class="sl">Symmetrischer Spezialfall</p>
+<div class="frm">A symmetrisch  →  A = Q·D·Qᵀ<br><br>Q orthogonal (Qᵀ = Q⁻¹): Spalten = ONB aus Eigenvektoren<br>D: reelle Eigenwerte auf Diagonale</div>
+<p class="sl">Rechenvorteile</p>
+<div class="frm">Aᵏ = S·Dᵏ·S⁻¹,  Dᵏ = diag(λ₁ᵏ,...) trivial<br>A⁻¹ = S·D⁻¹·S⁻¹,  D⁻¹ = diag(1/λ₁,...)<br>det(A) = λ₁·λ₂·...·λₙ</div>
+<p class="sl">Geometrische Intuition</p>
+<div class="def">S⁻¹: Basiswechsel ins Eigenvektor-Koordinatensystem. D: Streckung entlang der Koordinatenachsen (um die Eigenwerte). S: Basiswechsel zurück ins Standardsystem. A "ist" also eine Streckung in ausgezeichneten Richtungen.</div>`,
+
+`<p class="sl">Definition & Existenz</p>
+<div class="frm">A = U · Σ · Vᵀ<br><br>A ∈ ℝᵐˣⁿ  (beliebige Dimensionen!)<br>U ∈ ℝᵐˣᵐ: orthogonal (linke Singulärvektoren)<br>V ∈ ℝⁿˣⁿ: orthogonal (rechte Singulärvektoren)<br>Σ ∈ ℝᵐˣⁿ: σ₁ ≥ σ₂ ≥ ... ≥ σᵣ > 0, rest 0<br><br>SVD existiert immer — für alle Matrizen!</div>
+<p class="sl">Geometrische Interpretation (3 Schritte)</p>
+<div class="step"><div class="sn">Vᵀ</div><div class="st">Basistausch in ℝⁿ: dreht die rechten Singulärvektoren auf die Standardbasis</div></div>
+<div class="step"><div class="sn">Σ</div><div class="st">Skalierung: streckt um σᵢ entlang der Koordinatenachsen, fügt/löscht Dimensionen wenn m≠n</div></div>
+<div class="step"><div class="sn">U</div><div class="st">Basistausch in ℝᵐ: dreht die Standardbasis auf die linken Singulärvektoren</div></div>
+<p class="sl">Herleitung via Eigenwerte</p>
+<div class="frm">AᵀA = V·diag(σ₁²,...,σᵣ²,0,...)·Vᵀ<br>AAᵀ = U·diag(σ₁²,...,σᵣ²,0,...)·Uᵀ<br><br>σᵢ = √(Eigenwerte von AᵀA) ≥ 0<br><br>AᵀA und AAᵀ sind symmetrisch pos. semidef.<br>→ reelle, nichtneg. Eigenwerte garantiert</div>`,
+
+`<p class="sl">EVZ vs. SVD im direkten Vergleich</p>
+<div class="cmp">
+<div class="cmp-r"><div class="cmp-h">Eigenwertzerlegung (EVZ)</div><div class="cmp-h">Singulärwertzerlegung (SVD)</div></div>
+<div class="cmp-r"><div class="cmp-c">Nur quadratische Matrizen</div><div class="cmp-c">Alle A ∈ ℝᵐˣⁿ</div></div>
+<div class="cmp-r"><div class="cmp-c">Existiert nicht immer</div><div class="cmp-c">Existiert immer</div></div>
+<div class="cmp-r"><div class="cmp-c">Eigenwerte können negativ sein</div><div class="cmp-c">Singulärwerte σᵢ ≥ 0 immer</div></div>
+<div class="cmp-r"><div class="cmp-c">A = SDS⁻¹ (S nicht orth.)</div><div class="cmp-c">A = UΣVᵀ (U, V orthogonal)</div></div>
+<div class="cmp-r"><div class="cmp-c">Basistausch in einem Raum</div><div class="cmp-c">Basistausch in Domain & Codomain</div></div>
+<div class="cmp-r"><div class="cmp-c">Bei symm. A = QDQᵀ (Spezialfall)</div><div class="cmp-c">Allgemeinste Zerlegung</div></div>
+</div>
+<p class="sl">ML-Anwendungen SVD</p>
+<div class="ml"><div class="md"></div><div><strong>Truncated SVD / PCA:</strong> Behalte nur die k größten Singulärwerte → Â = UₖΣₖVₖᵀ ist die beste Rang-k-Approximation (Eckart-Young-Theorem): minimiert ‖A−Â‖_F.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Empfehlungssysteme:</strong> User-Item-Matrix M ≈ UₖΣₖVₖᵀ = collaborative filtering. Fehlende Einträge durch Niedrig-Rang-Approximation schätzen.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Pseudoinverse:</strong> A⁺ = VΣ⁺Uᵀ mit Σ⁺ = diag(1/σ₁,...,1/σᵣ,0,...). Verallgemeinert die Inverse auf nicht-quadratische Matrizen. Lösung von Ax=b im Least-Squares-Sinn: x = A⁺b.</div></div>
+<div class="ml"><div class="md"></div><div><strong>Bildkompression:</strong> Bild als m×n-Matrix A. Die Rang-k-SVD braucht nur k·(m+n+1) Zahlen statt m·n — Kompressionsrate k(m+n+1)/(mn).</div></div>`
+]}
+};
+
+function buildNav(){
+  const nav=document.getElementById('nav');
+  T.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='nb';b.id='nb-'+t.id;
+    b.innerHTML=`<div class="ni">${t.sym}</div><div class="nl">${t.label}</div><div class="ns">${t.sub}</div>`;
+    b.onclick=()=>tog(t.id);
+    nav.appendChild(b);
+  });
+}
+
+function buildPanels(){
+  const c=document.getElementById('panels');
+  Object.entries(D).forEach(([id,d])=>{
+    const p=document.createElement('div');
+    p.className='panel';p.id='p-'+id;
+    const tabs=d.tabs.map((t,i)=>`<button class="tb ${i===0?'on':''}" onclick="swTab('${id}',${i})">${t}</button>`).join('');
+    const cont=d.c.map((x,i)=>`<div class="tc ${i===0?'on':''}" id="${id}-c-${i}">${x}</div>`).join('');
+    p.innerHTML=`<div class="ph"><div class="pt">${d.title}</div><div class="ps">${d.sub}</div></div><div class="tabs">${tabs}</div>${cont}`;
+    c.appendChild(p);
+  });
+}
+
+function tog(id){
+  const p=document.getElementById('p-'+id),b=document.getElementById('nb-'+id);
+  const open=p.classList.contains('on');
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));
+  if(!open){p.classList.add('on');b.classList.add('on');setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),50);}
+}
+
+function swTab(id,i){
+  const p=document.getElementById('p-'+id);
+  p.querySelectorAll('.tb').forEach((t,j)=>t.classList.toggle('on',j===i));
+  p.querySelectorAll('.tc').forEach((t,j)=>t.classList.toggle('on',j===i));
+}
+
+buildNav();buildPanels();
+</script>
+</body>
+</html>
