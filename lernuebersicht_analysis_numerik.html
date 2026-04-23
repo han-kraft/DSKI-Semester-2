@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortgeschrittene Analysis & Numerik – Interaktive Lernübersicht</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #2a3441;
+    --accent: #e8b86d;
+    --accent2: #5bbeff;
+    --accent3: #a8e6a3;
+    --accent4: #f07070;
+    --text: #cdd9e5;
+    --text-dim: #768390;
+    --text-bright: #f0f6fc;
+    --formula-bg: #0a1628;
+    --formula-border: #1e3a5f;
+    --step-bg: #0d1f14;
+    --step-border: #1a4028;
+    --warn-bg: #1f1509;
+    --warn-border: #5a3800;
+    --def-bg: #13111e;
+    --def-border: #3d2d6e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #0a1628 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(232,184,109,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.4rem;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .exam-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    background: rgba(232,184,109,0.1);
+    border: 1px solid rgba(232,184,109,0.3);
+    border-radius: 4px;
+    padding: 0.3rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .nav-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0d1117;
+  }
+  .nav-btn.analysis { --col: var(--accent); }
+  .nav-btn.numerik { --col: var(--accent2); }
+  .nav-btn.numerik:hover, .nav-btn.numerik.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #0d1117;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ── SECTION ── */
+  .section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header {
+    display: flex; align-items: baseline; gap: 1rem;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.8rem;
+    margin-bottom: 2rem;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(232,184,109,0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+
+  /* ── TOPIC CARDS ── */
+  .topic-group { margin-bottom: 2.5rem; }
+  .topic-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border);
+  }
+
+  /* ── DEFINITION BOX ── */
+  .def-box {
+    background: var(--def-bg);
+    border: 1px solid var(--def-border);
+    border-left: 3px solid #7c5cbf;
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+  .def-box .def-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9b7de8;
+    margin-bottom: 0.6rem;
+  }
+  .def-box p { color: var(--text); margin-bottom: 0.4rem; }
+
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: var(--formula-bg);
+    border: 1px solid var(--formula-border);
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+  }
+  .formula-box .formula-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .formula-box .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    color: #79c0ff;
+    line-height: 1.8;
+  }
+
+  /* ── STEP-BY-STEP ── */
+  .steps-box {
+    background: var(--step-bg);
+    border: 1px solid var(--step-border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+  .steps-box .steps-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+  }
+  .step {
+    display: flex; gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(168,230,163,0.1);
+  }
+  .step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 1.6rem; height: 1.6rem;
+    background: rgba(168,230,163,0.15);
+    border: 1px solid var(--accent3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent3);
+    margin-top: 0.1rem;
+  }
+  .step-content { flex: 1; }
+  .step-content .step-label {
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 0.2rem;
+  }
+  .step-content p { color: var(--text); font-size: 0.96rem; }
+
+  /* ── WARNING BOX ── */
+  .warn-box {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  .warn-box .warn-icon { color: var(--accent); font-weight: 700; margin-right: 0.4rem; }
+
+  /* ── EXAMPLE BOX ── */
+  .example-box {
+    background: #11181f;
+    border: 1px solid #1e2f3e;
+    border-left: 3px solid var(--accent2);
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+  .example-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    margin-bottom: 0.8rem;
+  }
+
+  /* ── ACCORDION / COLLAPSIBLE TASK ── */
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .task-header {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.9rem 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .task-header:hover { background: var(--surface2); }
+  .task-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    background: rgba(232,184,109,0.1);
+    border: 1px solid rgba(232,184,109,0.2);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .task-title {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-bright);
+    font-size: 0.95rem;
+  }
+  .task-arrow {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+  .task-card.open .task-arrow { transform: rotate(90deg); }
+  .task-body {
+    display: none;
+    padding: 1.2rem 1.4rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .task-card.open .task-body { display: block; animation: fadeIn 0.2s ease; }
+
+  /* ── OVERVIEW GRID ── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .overview-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+    transform: translateY(-2px);
+  }
+  .overview-card.numerik-card { border-top-color: var(--accent2); }
+  .overview-card .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+  }
+  .overview-card .card-title {
+    font-weight: 600;
+    color: var(--text-bright);
+    font-size: 0.95rem;
+  }
+
+  /* ── INLINE MATH ── */
+  .math {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+    color: #79c0ff;
+    background: rgba(121,192,255,0.08);
+    padding: 0.05em 0.3em;
+    border-radius: 2px;
+  }
+  .math-block {
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+    text-align: center;
+    padding: 0.8rem;
+    color: #79c0ff;
+    font-size: 1rem;
+    background: rgba(10,22,40,0.6);
+    border-radius: 3px;
+    margin: 0.6rem 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── HIGHLIGHT ── */
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl2 { color: var(--accent2); font-weight: 600; }
+  .hl3 { color: var(--accent3); font-weight: 600; }
+  .hl4 { color: var(--accent4); font-weight: 600; }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; }
+  th { background: rgba(232,184,109,0.1); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid var(--border); }
+  td { padding: 0.55rem 0.8rem; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* ── PROGRESS INDICATOR ── */
+  .progress-dots { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; cursor: pointer; }
+  .dot.done { background: var(--accent3); }
+  .dot.current { background: var(--accent); }
+
+  /* ── QUIZ ── */
+  .quiz-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.5rem 0;
+  }
+  .quiz-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent4);
+    margin-bottom: 0.8rem;
+  }
+  .quiz-q { color: var(--text-bright); margin-bottom: 1rem; font-weight: 600; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quiz-opt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .quiz-opt:hover { border-color: var(--accent2); color: var(--text-bright); }
+  .quiz-opt.correct { background: rgba(168,230,163,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .quiz-opt.wrong { background: rgba(240,112,112,0.1); border-color: var(--accent4); color: var(--accent4); }
+  .quiz-feedback { margin-top: 0.8rem; font-size: 0.9rem; display: none; }
+  .quiz-feedback.show { display: block; animation: fadeIn 0.2s; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  p { margin-bottom: 0.7rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: 0.8rem; }
+  li { margin-bottom: 0.3rem; }
+  strong { color: var(--text-bright); }
+  h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--text-bright); margin: 1.5rem 0 0.6rem; }
+  h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 1.2rem 0 0.5rem; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Fortgeschrittene <span>Analysis</span> & Numerik</h1>
+  <p>W4DSKI_108.2 · Data Science & KI · Prof. Dr. Niedergesäss</p>
+  <div class="exam-badge">📅 Klausur: 10.06.2026 · 60 Minuten</div>
+</header>
+
+<nav id="nav">
+  <button class="nav-btn active" onclick="showSection('home')">Übersicht</button>
+  <button class="nav-btn analysis" onclick="showSection('s1')">1 · Taylor-Reihen</button>
+  <button class="nav-btn analysis" onclick="showSection('s2')">2 · Skalare Fkt.</button>
+  <button class="nav-btn analysis" onclick="showSection('s3')">3 · Part. Ableitung</button>
+  <button class="nav-btn analysis" onclick="showSection('s4')">4 · Optimierung</button>
+  <button class="nav-btn analysis" onclick="showSection('s5')">5 · Jacobi & Vektor</button>
+  <button class="nav-btn analysis" onclick="showSection('s6')">6 · Integration</button>
+  <button class="nav-btn numerik" onclick="showSection('s7')">7 · Grundlagen Num.</button>
+  <button class="nav-btn numerik" onclick="showSection('s8')">8 · Newton-Verfahren</button>
+  <button class="nav-btn numerik" onclick="showSection('s9')">9 · Num. Differentiation</button>
+</nav>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div class="section active" id="home">
+<div class="container">
+  <h3 style="margin-top:0">Alle Themenblöcke auf einen Blick</h3>
+  <p style="color:var(--text-dim)">Klicke auf ein Thema, um direkt zum Lerninhalt zu springen.</p>
+
+  <div style="margin-bottom: 0.5rem; font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent)">Analysis</div>
+  <div class="overview-grid">
+    <div class="overview-card" onclick="showSection('s1')"><div class="card-num">Block 1</div><div class="card-title">Taylor-Reihen & Approximation</div></div>
+    <div class="overview-card" onclick="showSection('s2')"><div class="card-num">Block 2</div><div class="card-title">Skalare Funktionen über ℝⁿ</div></div>
+    <div class="overview-card" onclick="showSection('s3')"><div class="card-num">Block 3</div><div class="card-title">Partielle Ableitungen, Gradient, Linearisierung</div></div>
+    <div class="overview-card" onclick="showSection('s4')"><div class="card-num">Block 4</div><div class="card-title">Optimierung & Lagrange-Multiplikatoren</div></div>
+    <div class="overview-card" onclick="showSection('s5')"><div class="card-num">Block 5</div><div class="card-title">Jacobi-Matrix & Vektordifferentiation</div></div>
+    <div class="overview-card" onclick="showSection('s6')"><div class="card-num">Block 6</div><div class="card-title">Mehrfachintegrale</div></div>
+  </div>
+
+  <div style="margin-top:1.5rem; margin-bottom: 0.5rem; font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent2)">Numerik</div>
+  <div class="overview-grid">
+    <div class="overview-card numerik-card" onclick="showSection('s7')"><div class="card-num">Block 7</div><div class="card-title">Grundlagen: Kondition, Fehler, Gleitkomma</div></div>
+    <div class="overview-card numerik-card" onclick="showSection('s8')"><div class="card-num">Block 8</div><div class="card-title">Newton-Verfahren (Nullstellenbestimmung)</div></div>
+    <div class="overview-card numerik-card" onclick="showSection('s9')"><div class="card-num">Block 9</div><div class="card-title">Numerische Differentiation</div></div>
+  </div>
+
+  <div class="warn-box" style="margin-top:2rem">
+    <span class="warn-icon">💡</span>
+    <strong>Wie du am besten lernst:</strong> Jeder Block enthält zuerst die <hl>Begriffserklärung</hl>, dann die <span style="color:var(--accent3)">Schritt-für-Schritt-Rechenmethode</span>, dann durchgerechnete <span style="color:var(--accent2)">Beispiele</span> aus den Übungsaufgaben.
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ S1: TAYLOR-REIHEN ═══════════ -->
+<div class="section" id="s1">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 1</span>
+    <span class="section-title">Taylor-Reihen</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was ist eine Taylor-Reihe? – Die Grundidee</div>
+    <p>Komplizierte Funktionen (z.B. <span class="math">sin(x)</span>, <span class="math">e^x</span>) sind schwer direkt zu berechnen. Die Idee: Wir ersetzen sie durch ein <strong>Polynom</strong> (Summe von Potenzen von x), das an einem Punkt <strong>beliebig genau passt</strong>.</p>
+    <p>Das Taylor-Polynom der Ordnung <span class="math">n</span> um den Entwicklungspunkt <span class="math">x₀</span> ist das Polynom, das dieselben Funktionswerte und ersten <span class="math">n</span> Ableitungen wie <span class="math">f</span> im Punkt <span class="math">x₀</span> hat.</p>
+  </div>
+
+  <h3>Das Taylor-Polynom</h3>
+  <div class="formula-box">
+    <div class="formula-label">Definition: Taylor-Polynom n-ter Ordnung um x₀</div>
+    <div class="formula">T_n(x)  =  Σ(k=0 bis n)  [f⁽ᵏ⁾(x₀) / k!] · (x - x₀)^k
+
+      =  f(x₀)  +  f'(x₀)·(x-x₀)  +  f''(x₀)/2! · (x-x₀)²
+         + f'''(x₀)/3! · (x-x₀)³  + ...  +  f⁽ⁿ⁾(x₀)/n! · (x-x₀)ⁿ</div>
+  </div>
+  <p><strong>Merke:</strong> Der Koeffizient bei <span class="math">(x-x₀)ᵏ</span> ist immer <span class="math">f⁽ᵏ⁾(x₀) / k!</span> – also die k-te Ableitung an der Stelle x₀, dividiert durch k-Fakultät.</p>
+  <p><strong>Wichtige Eigenschaft:</strong> <span class="math">T_n⁽ᵏ⁾(x₀) = f⁽ᵏ⁾(x₀)</span> für k = 0, 1, ..., n. Das Polynom stimmt also mit f in allen Ableitungen bis zur n-ten überein.</p>
+
+  <h3>Das Restglied (Fehler der Approximation)</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist das Restglied?</div>
+    <p>Das Restglied <span class="math">R_n(x)</span> ist der Fehler, den wir machen, wenn wir <span class="math">f(x)</span> durch <span class="math">T_n(x)</span> ersetzen. Es gilt:</p>
+    <span class="math-block">f(x) = T_n(x) + R_n(x)</span>
+  </div>
+  <div class="formula-box">
+    <div class="formula-label">Lagrange'sche Restglied-Darstellung</div>
+    <div class="formula">R_n(x) = f⁽ⁿ⁺¹⁾(ξ) / (n+1)! · (x - x₀)ⁿ⁺¹
+
+wobei ξ ∈ [x₀, x] ein (unbekannter) Zwischenpunkt ist.</div>
+  </div>
+  <p>Da <span class="math">ξ</span> unbekannt ist, benutzt man die <strong>obere Schranke</strong>: Man sucht das Maximum von <span class="math">|f⁽ⁿ⁺¹⁾|</span> auf dem Intervall und schätzt damit ab.</p>
+
+  <h3>Die Taylor-Reihe (unendliche Summe)</h3>
+  <div class="def-box">
+    <div class="def-title">Definition: Taylor-Reihe</div>
+    <p>Wenn f unendlich oft differenzierbar ist, heißt die unendliche Summe:</p>
+    <span class="math-block">Σ(k=0 bis ∞)  f⁽ᵏ⁾(x₀)/k! · (x-x₀)ᵏ</span>
+    <p>die <strong>Taylor-Reihe</strong> von f um x₀. Für x₀ = 0 heißt sie <strong>Maclaurin-Reihe</strong>.</p>
+    <p class="warn-box" style="margin-top:0.5rem; margin-bottom:0"><span class="warn-icon">⚠️</span>Die Taylor-Reihe konvergiert <strong>nicht automatisch</strong> gegen f(x). Die Konvergenz muss über das Restglied geprüft werden: <span class="math">R_n(x) → 0</span> für <span class="math">n → ∞</span>?</p>
+  </div>
+
+  <h3>Wichtige bekannte Taylor-Reihen (auswendig lernen!)</h3>
+  <div class="formula-box">
+    <div class="formula-label">Standard-Reihen um x₀ = 0</div>
+    <div class="formula">eˣ   = 1 + x + x²/2! + x³/3! + x⁴/4! + ...  =  Σ xⁿ/n!
+
+sin(x) = x - x³/3! + x⁵/5! - ...          =  Σ (-1)ⁿ x²ⁿ⁺¹/(2n+1)!
+
+cos(x) = 1 - x²/2! + x⁴/4! - ...          =  Σ (-1)ⁿ x²ⁿ/(2n)!
+
+ln(1+x) = x - x²/2 + x³/3 - ...           =  Σ (-1)ⁿ⁺¹ xⁿ/n,  |x| < 1</div>
+  </div>
+
+  <h3>Schritt-für-Schritt: Taylor-Polynom direkt berechnen</h3>
+  <div class="steps-box">
+    <div class="steps-title">Methode A: Direkte Berechnung über Ableitungen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Ableitungen berechnen</div><p>Berechne f⁽⁰⁾(x), f⁽¹⁾(x), f⁽²⁾(x), f⁽³⁾(x), ... (bis zur gewünschten Ordnung n)</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">An der Stelle x₀ auswerten</div><p>Setze x = x₀ in alle Ableitungen ein → f⁽⁰⁾(x₀), f⁽¹⁾(x₀), ...</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Formel einsetzen</div><p>T_n(x) = Σ f⁽ᵏ⁾(x₀)/k! · (x-x₀)ᵏ. Jeden Term ausschreiben und vereinfachen.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Allgemeines Glied angeben (optional)</div><p>Falls ein Muster erkennbar ist, gib die kompakte Summenformel an.</p></div></div>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Methode B: Bekannte Reihe verwenden (schneller!)</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Funktion umschreiben</div><p>Versuche f(x) als Transformation einer Standardfunktion zu erkennen. z.B. f(x) = x·e^(x-1) = x·e^u mit u = x-1</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Bekannte Reihe substituieren</div><p>Ersetze u in der bekannten Reihe, z.B. e^u = Σ uⁿ/n!</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Ausmultiplizieren</div><p>Multipliziere mit dem verbleibenden Faktor (z.B. x) und fasse zusammen.</p></div></div>
+  </div>
+
+  <h3>Fehlerabschätzung – Schritt für Schritt</h3>
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Fehler abschätzen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Restglied-Formel aufschreiben</div><p>|R_n(x)| = |f⁽ⁿ⁺¹⁾(ξ)| / (n+1)! · |x-x₀|^(n+1)</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Maximum der (n+1)-ten Ableitung finden</div><p>Suche M = max|f⁽ⁿ⁺¹⁾(ξ)| auf dem Intervall [x₀, x]. Für e^x z.B. ist das e^x, also M ≤ e^|x|.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Schranke berechnen</div><p>|R_n(x)| ≤ M / (n+1)! · |x-x₀|^(n+1). Wert einsetzen → Zahl.</p></div></div>
+  </div>
+
+  <h3>Vollständig gelöstes Beispiel (Übungsblatt 1, Aufgabe 2)</h3>
+  <div class="task-card" id="ex1_1">
+    <div class="task-header" onclick="toggleTask('ex1_1')">
+      <span class="task-badge">Aufgabe 1.2</span>
+      <span class="task-title">cos(x) bis Ordnung n=4, Fehler für x=0.8</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>Gegeben:</strong> f(x) = cos(x), x₀ = 0, n = 4, x = 0.8</p>
+      <div class="steps-box">
+        <div class="steps-title">Vollständige Lösung</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Ableitungen berechnen</div>
+          <p>f⁽⁰⁾(x) = cos(x)  →  f(0) = 1<br>
+          f⁽¹⁾(x) = -sin(x)  →  f'(0) = 0<br>
+          f⁽²⁾(x) = -cos(x)  →  f''(0) = -1<br>
+          f⁽³⁾(x) = sin(x)   →  f'''(0) = 0<br>
+          f⁽⁴⁾(x) = cos(x)   →  f⁽⁴⁾(0) = 1</p>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Taylor-Polynom aufschreiben</div>
+          <span class="math-block">T₄(x) = 1 + 0·x + (-1)/2! · x² + 0·x³ + 1/4! · x⁴
+       = 1 - x²/2 + x⁴/24</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Fehlerabschätzung für x = 0.8</div>
+          <p>Das Restglied hat Ordnung n+1 = 5:</p>
+          <span class="math-block">R₄(x) = f⁽⁵⁾(ξ)/5! · x⁵  =  -sin(ξ)/120 · x⁵</span>
+          <p>Da |sin(ξ)| ≤ 1 für alle ξ:</p>
+          <span class="math-block">|R₄(0.8)| ≤ 1/120 · (0.8)⁵ = 0.32768/120 ≈ 0.00273</span>
+          <p>Der Fehler ist kleiner als 0.003.</p>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" id="ex1_2">
+    <div class="task-header" onclick="toggleTask('ex1_2')">
+      <span class="task-badge">Aufgabe 1.1</span>
+      <span class="task-title">f(x) = x·exp(x−1) um x₀ = 1 (beide Methoden)</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>Methode A – direkte Ableitungen:</strong></p>
+      <p>f(x) = x·e^(x-1). Produktregel: f'(x) = e^(x-1) + x·e^(x-1) = (1+x)e^(x-1)</p>
+      <p>f''(x) = e^(x-1) + (1+x)e^(x-1) = (2+x)e^(x-1)</p>
+      <p>Muster: f⁽ⁿ⁾(x) = (n+x)·e^(x-1)</p>
+      <p>An x₀ = 1: f⁽ⁿ⁾(1) = (n+1)·e⁰ = n+1</p>
+      <span class="math-block">T_n(x) = Σ(k=0 bis n) (k+1)/k! · (x-1)^k</span>
+      <p><strong>Methode B – bekannte Reihe:</strong></p>
+      <p>Schreibe u = x-1, also f = (u+1)·e^u. Dann: e^u = Σ uⁿ/n!<br>
+      f = u·e^u + e^u = Σ uⁿ⁺¹/n! + Σ uⁿ/n!</p>
+      <p>Zusammenführen nach Potenzen von u = (x-1) ergibt dasselbe Ergebnis.</p>
+    </div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-title">🧠 Wissens-Check</div>
+    <div class="quiz-q">Was ist der Koeffizient bei (x-x₀)³ im Taylor-Polynom?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" onclick="checkQuiz(this,'q1',false)">f'''(x₀) / 6</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'q1',true)">f'''(x₀) / 6 &nbsp;✓ (korrekt: f'''(x₀) / 3!)</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'q1',false)">f'''(x₀) · 3!</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'q1',false)">f'''(x₀)</div>
+    </div>
+    <div class="quiz-feedback" id="q1_feedback"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S2: SKALARE FUNKTIONEN ═══════════ -->
+<div class="section" id="s2">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 2</span>
+    <span class="section-title">Skalare Funktionen über ℝⁿ</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was sind skalare Funktionen über ℝⁿ?</div>
+    <p>Eine <strong>skalare Funktion über ℝⁿ</strong> nimmt n Eingabewerte (einen n-dimensionalen Vektor) und liefert eine einzige reelle Zahl als Ausgabe:</p>
+    <span class="math-block">f : ℝⁿ → ℝ,   (x₁, x₂, ..., xₙ) ↦ f(x₁, x₂, ..., xₙ)</span>
+    <p><strong>Beispiele:</strong></p>
+    <ul>
+      <li>Temperatur T(x, y, z, t) – Ort + Zeit → Temperaturwert</li>
+      <li>Verlustfunktion L(β₁, β₂) – Parameter → Fehlerwert</li>
+      <li>Volumen V(h, r) = π·r²·h – Höhe + Radius → Volumen</li>
+    </ul>
+  </div>
+
+  <h3>Niveaulinien</h3>
+  <div class="def-box">
+    <div class="def-title">Was sind Niveaulinien?</div>
+    <p>Die <strong>Niveaulinie N_c</strong> einer Funktion f(x,y) zur Höhe c ist die Menge aller Punkte (x,y), für die f(x,y) = c gilt. Analog zu Höhenlinien auf einer Landkarte.</p>
+    <span class="math-block">Nₓ = { (x,y) ∈ ℝ² | f(x,y) = c }</span>
+  </div>
+
+  <div class="task-card" id="ex2_1">
+    <div class="task-header" onclick="toggleTask('ex2_1')">
+      <span class="task-badge">Aufgabe 2.1</span>
+      <span class="task-title">Niveaulinien von f(x,y) = x·y skizzieren</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p>Niveaulinie N_c: x·y = c → y = c/x (Hyperbeln für c ≠ 0)</p>
+      <ul>
+        <li>N₀: x·y = 0 → x = 0 oder y = 0 (die Achsen)</li>
+        <li>N₁: y = 1/x (gleichseitige Hyperbel, 1. und 3. Quadrant)</li>
+        <li>N₋₁: y = -1/x (2. und 4. Quadrant)</li>
+        <li>N₂: y = 2/x (flachere Hyperbeln)</li>
+      </ul>
+      <p>Die Niveaulinien sind also Hyperbeln mit der x- und y-Achse als Asymptoten.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S3: PARTIELLE ABLEITUNGEN ═══════════ -->
+<div class="section" id="s3">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 3</span>
+    <span class="section-title">Partielle Ableitungen · Gradient · Linearisierung</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was ist eine partielle Ableitung?</div>
+    <p>Die <strong>partielle Ableitung</strong> nach x₁ gibt die lokale Änderung von f, wenn nur x₁ variiert wird, während alle anderen Variablen <strong>konstant gehalten</strong> werden.</p>
+    <span class="math-block">∂f/∂xᵢ  =  lim(h→0) [f(..., xᵢ+h, ...) - f(..., xᵢ, ...)] / h</span>
+    <p>Schreibweisen: <span class="math">∂f/∂x</span> oder <span class="math">∂_x f</span> oder <span class="math">f_x</span></p>
+  </div>
+
+  <h3>Rechenregel: Partielle Ableitung bilden</h3>
+  <div class="steps-box">
+    <div class="steps-title">So rechnet man partielle Ableitungen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Variablen aussuchen</div><p>Entscheide, nach welcher Variable du ableiten willst (z.B. nach x).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Alle anderen als Konstante behandeln</div><p>Alle anderen Variablen (y, z, ...) werden wie Zahlen behandelt. Nach y differenzieren? Dann x konstant!</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Normale Ableitungsregeln anwenden</div><p>Produkt-, Ketten-, Quotientenregel – alles normal, nur mit der "freigegebenen" Variable.</p></div></div>
+  </div>
+
+  <div class="example-box">
+    <div class="example-title">Beispiel: f(x,y) = x²y + xe^y</div>
+    <span class="math-block">∂f/∂x = 2xy + e^y       (y wird als Konstante behandelt)
+
+∂f/∂y = x² + xe^y      (x wird als Konstante behandelt)
+
+∂²f/∂x² = 2y           (nochmal nach x von ∂f/∂x)
+
+∂²f/∂y² = xe^y         (nochmal nach y von ∂f/∂y)
+
+∂²f/∂x∂y = 2x + e^y    (∂f/∂x nach y ableiten)</span>
+    <p style="font-size:0.9rem; color:var(--text-dim)"><strong>Satz von Schwarz:</strong> Bei ausreichend glatten Funktionen gilt ∂²f/∂x∂y = ∂²f/∂y∂x – die Reihenfolge spielt keine Rolle.</p>
+  </div>
+
+  <h3>Der Gradient</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist der Gradient?</div>
+    <p>Der <strong>Gradient</strong> ∇f einer skalaren Funktion f : ℝⁿ → ℝ ist ein <strong>Zeilenvektor</strong> aller ersten partiellen Ableitungen:</p>
+    <span class="math-block">∇f = (∂f/∂x₁, ∂f/∂x₂, ..., ∂f/∂xₙ)</span>
+    <p>Er zeigt in die Richtung des <strong>stärksten Anstiegs</strong> der Funktion.</p>
+  </div>
+
+  <h3>Die Hesse-Matrix</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist die Hesse-Matrix?</div>
+    <p>Die <strong>Hesse-Matrix</strong> Hf enthält alle zweiten partiellen Ableitungen – sie beschreibt die lokale Krümmung der Funktion:</p>
+    <span class="math-block">Hf = ⎡ f_x₁x₁  f_x₁x₂  ...  f_x₁xₙ ⎤
+    ⎢ f_x₂x₁  f_x₂x₂  ...  f_x₂xₙ ⎥
+    ⎣ f_xₙx₁  f_xₙx₂  ...  f_xₙxₙ ⎦</span>
+    <p>Die Hesse-Matrix ist <strong>symmetrisch</strong> (wegen Satz von Schwarz).</p>
+  </div>
+
+  <h3>Linearisierung skalarer Funktionen</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist die Linearisierung?</div>
+    <p>Die <strong>Linearisierung</strong> ℓ ist die beste lineare (affine) Näherung von f in der Nähe eines Punktes (x̂, ŷ). Sie ist die Tangentialebene an den Funktionsgraphen.</p>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">Linearisierung in ℝ² (und allgemein in ℝⁿ)</div>
+    <div class="formula">ℓ(x,y) = ∇f(x̂,ŷ) · (x-x̂, y-ŷ)ᵀ + f(x̂,ŷ)
+
+       = f_x(x̂,ŷ)·(x-x̂) + f_y(x̂,ŷ)·(y-ŷ) + f(x̂,ŷ)
+
+Allgemein:  ℓ(x) = ∇f(x̂) · (x - x̂) + f(x̂)</div>
+  </div>
+
+  <h3>Schritt-für-Schritt: Linearisierung berechnen</h3>
+  <div class="steps-box">
+    <div class="steps-title">Vorgehen bei der Linearisierung</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Gradient ∇f berechnen</div><p>Alle partiellen Ableitungen ∂f/∂xᵢ berechnen.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Gradient an Punkt (x̂, ŷ) auswerten</div><p>Werte ∇f an der Entwicklungsstelle aus → Zahlenwerte.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Funktionswert f(x̂, ŷ) berechnen</div><p>Den Wert der Funktion selbst an der Stelle auswerten.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Formel einsetzen</div><p>ℓ(x,y) = f_x(x̂,ŷ)·(x-x̂) + f_y(x̂,ŷ)·(y-ŷ) + f(x̂,ŷ)</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Abweichung prüfen (falls gefragt)</div><p>|f(x₀,y₀) - ℓ(x₀,y₀)| ausrechnen.</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex3_1">
+    <div class="task-header" onclick="toggleTask('ex3_1')">
+      <span class="task-badge">Aufgabe 2.4b / 2.6</span>
+      <span class="task-title">g(x,y) = e^(−5x+2y) linearisieren bei P:(2,5)</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <div class="steps-box">
+        <div class="steps-title">Vollständige Lösung</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Partielle Ableitungen</div>
+          <span class="math-block">∂g/∂x = -5 · e^(-5x+2y)
+∂g/∂y = 2 · e^(-5x+2y)</span>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Auswertung bei (2,5)</div>
+          <p>Exponent: -5·2 + 2·5 = -10+10 = 0, also e⁰ = 1</p>
+          <span class="math-block">g(2,5) = 1,   ∂g/∂x|(2,5) = -5,   ∂g/∂y|(2,5) = 2</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Linearisierung</div>
+          <span class="math-block">ℓ(x,y) = -5·(x-2) + 2·(y-5) + 1
+        = -5x + 10 + 2y - 10 + 1 = -5x + 2y + 1</span>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Abweichung bei Q:(2.1, 4.9)</div>
+          <p>g(2.1, 4.9) = e^(-5·2.1+2·4.9) = e^(-10.5+9.8) = e^(-0.7) ≈ 0.4966<br>
+          ℓ(2.1, 4.9) = -5·2.1 + 2·4.9 + 1 = -10.5 + 9.8 + 1 = 0.3<br>
+          Abweichung: |0.4966 - 0.3| ≈ 0.197</p>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Richtungsableitung</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist die Richtungsableitung?</div>
+    <p>Die Richtungsableitung gibt an, wie schnell sich f in einer beliebigen Richtung v ändert (nicht nur entlang der Koordinatenachsen).</p>
+    <span class="math-block">∂f/∂v (x) = ∇f(x) · v/‖v‖ = ∇f(x) · v̂</span>
+    <p>Man projiziert also den Gradienten auf den normierten Richtungsvektor.</p>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Richtungsableitung berechnen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Gradient berechnen und auswerten</div><p>∇f an der gewünschten Stelle berechnen.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Richtungsvektor normieren</div><p>v̂ = v / ‖v‖. Norm: ‖v‖ = √(v₁² + v₂²)</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Skalarprodukt berechnen</div><p>∂f/∂v = ∇f · v̂ = f_x · v̂₁ + f_y · v̂₂</p></div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S4: OPTIMIERUNG ═══════════ -->
+<div class="section" id="s4">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 4</span>
+    <span class="section-title">Optimierung & Lagrange-Multiplikatoren</span>
+  </div>
+
+  <h3>Extremalsuche ohne Nebenbedingungen</h3>
+  <div class="def-box">
+    <div class="def-title">Kritischer Punkt</div>
+    <p>Ein Punkt P = (x₁,...,xₙ) heißt <strong>kritischer Punkt</strong>, wenn der Gradient Null ist: ∇f(P) = 0 (alle partiellen Ableitungen = 0).</p>
+    <p>Kritische Punkte sind Kandidaten für Extrema (Minima, Maxima) oder Sattelpunkte.</p>
+  </div>
+
+  <h3>Hesse-Matrix zur Klassifikation</h3>
+  <div class="formula-box">
+    <div class="formula-label">Satz: Bedingungen für Extrema (Eigenwerte der Hesse-Matrix)</div>
+    <div class="formula">Sei P ein kritischer Punkt (∇f(P) = 0):
+
+Alle Eigenwerte von Hf(P) > 0  →  lokales MINIMUM
+Alle Eigenwerte von Hf(P) < 0  →  lokales MAXIMUM
+Eigenwerte haben verschiedene Vorzeichen  →  SATTELPUNKT
+
+Für ℝ² einfacher: Determinante det(Hf) = f_xx·f_yy - (f_xy)²
+  det > 0  und  f_xx > 0  →  Minimum
+  det > 0  und  f_xx < 0  →  Maximum
+  det < 0                  →  Sattelpunkt
+  det = 0                  →  keine Aussage</div>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Extrema ohne Nebenbedingung</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Gradienten = 0 setzen</div><p>∂f/∂x = 0 und ∂f/∂y = 0 → Gleichungssystem lösen → kritische Punkte</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Hesse-Matrix aufstellen</div><p>Alle zweiten partiellen Ableitungen berechnen.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Hesse-Matrix auswerten und klassifizieren</div><p>Determinante und f_xx berechnen → Kriterium anwenden.</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex4_1">
+    <div class="task-header" onclick="toggleTask('ex4_1')">
+      <span class="task-badge">Aufgabe 3.2</span>
+      <span class="task-title">f(x,y) = −x³ + 6xy − 3y² + 12 auf Extrema untersuchen</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <div class="steps-box">
+        <div class="steps-title">Vollständige Lösung</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Kritische Punkte</div>
+          <span class="math-block">∂f/∂x = -3x² + 6y = 0  →  y = x²/2
+∂f/∂y = 6x - 6y = 0   →  y = x</span>
+          <p>Einsetzen: x = x²/2 → x² - 2x = 0 → x(x-2) = 0</p>
+          <p>Kritische Punkte: (0,0) und (2,2)</p>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Hesse-Matrix</div>
+          <span class="math-block">f_xx = -6x,  f_yy = -6,  f_xy = 6
+
+Hf = ⎡-6x   6⎤
+     ⎣  6  -6⎦
+
+det(Hf) = (-6x)·(-6) - 6² = 36x - 36</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Klassifikation</div>
+          <p><strong>Punkt (0,0):</strong> det = 36·0 - 36 = -36 &lt; 0 → <span class="hl4">Sattelpunkt</span></p>
+          <p><strong>Punkt (2,2):</strong> det = 36·2 - 36 = 36 > 0, f_xx = -12 &lt; 0 → <span class="hl3">lokales Maximum</span></p>
+          <p>f(2,2) = -8 + 24 - 12 + 12 = 16</p>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Extremalsuche mit Nebenbedingungen: Lagrange-Multiplikatoren</h3>
+  <div class="def-box">
+    <div class="def-title">Was sind Lagrange-Multiplikatoren?</div>
+    <p>Gesucht: Extremum von f(x) unter der Nebenbedingung g(x) = 0.</p>
+    <p>Idee: An einem Extremum sind die Gradienten von f und g <strong>parallel</strong>: ∇f = -s · ∇g (wobei s der Lagrange-Multiplikator ist).</p>
+    <p>Man fasst beides in der <strong>Lagrange-Funktion</strong> zusammen:</p>
+    <span class="math-block">ℒ(x₁,...,xₙ, s) = f(x₁,...,xₙ) + s · g(x₁,...,xₙ)</span>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Lagrange-Methode</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Nebenbedingung auf Nullform bringen</div><p>g(x,y) = 0 aufschreiben (z.B. xyz - V = 0)</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Lagrange-Funktion aufstellen</div><p>ℒ(x,y,s) = f(x,y) + s·g(x,y)</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Alle partiellen Ableitungen = 0 setzen</div><p>∂ℒ/∂x = 0, ∂ℒ/∂y = 0, ∂ℒ/∂s = 0 (das ergibt automatisch die Nebenbedingung)</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Gleichungssystem lösen</div><p>Oft: s aus zwei Gleichungen berechnen und gleichsetzen → x,y,z aus Symmetrie oder Einsetzen</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Optimale Werte einsetzen und prüfen</div><p>Plausibilitätsprüfung: Handelt es sich wirklich um ein Minimum/Maximum?</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex4_2">
+    <div class="task-header" onclick="toggleTask('ex4_2')">
+      <span class="task-badge">Aufgabe 4.3</span>
+      <span class="task-title">Cobb-Douglas f(L,K)=L^0.5·K^0.5 bei Budget 10L+20K=1000</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <div class="steps-box">
+        <div class="steps-title">Vollständige Lösung</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Nebenbedingung</div>
+          <p>g(L,K) = 10L + 20K - 1000 = 0</p>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Lagrange-Funktion</div>
+          <span class="math-block">ℒ(L,K,s) = L^0.5 · K^0.5 + s·(10L + 20K - 1000)</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Ableitungen = 0</div>
+          <span class="math-block">∂ℒ/∂L = 0.5·L^(-0.5)·K^0.5 + 10s = 0  →  0.5·K^0.5/L^0.5 = -10s
+∂ℒ/∂K = 0.5·L^0.5·K^(-0.5) + 20s = 0  →  0.5·L^0.5/K^0.5 = -20s
+∂ℒ/∂s = 10L + 20K - 1000 = 0</span>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">s eliminieren</div>
+          <p>Erste Gleichung dividiert durch zweite:</p>
+          <span class="math-block">K/L = 10s / (20s) · ... → K/L = 1/2  →  K = L/2</span>
+          <p>Einsetzen in Nebenbedingung: 10L + 20·(L/2) = 1000 → 20L = 1000 → <strong>L = 50, K = 25</strong></p>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S5: JACOBI & VEKTOR ═══════════ -->
+<div class="section" id="s5">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 5</span>
+    <span class="section-title">Jacobi-Matrix & Differenzieren nach Vektoren/Matrizen</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Vektorwertige Funktionen</div>
+    <p>Bisher: f : ℝⁿ → ℝ (skalare Ausgabe). Jetzt: <strong>f : ℝⁿ → ℝᵐ</strong> (Vektor-Ausgabe):</p>
+    <span class="math-block">f(x) = [f₁(x), f₂(x), ..., f_m(x)]ᵀ</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was ist die Jacobi-Matrix?</div>
+    <p>Die <strong>Jacobi-Matrix J</strong> ist die Sammlung aller ersten partiellen Ableitungen einer vektorwertigen Funktion f : ℝⁿ → ℝᵐ. Sie ist eine <strong>m×n-Matrix</strong>:</p>
+    <span class="math-block">J = ∇_x f = ⎡ ∂f₁/∂x₁  ∂f₁/∂x₂  ...  ∂f₁/∂xₙ ⎤
+            ⎢ ∂f₂/∂x₁  ...       ...  ...       ⎥
+            ⎣ ∂fₘ/∂x₁  ...       ...  ∂fₘ/∂xₙ  ⎦
+
+J(i,j) = ∂fᵢ/∂xⱼ</span>
+    <p><strong>Dimensionen:</strong> m Zeilen (eine pro Ausgabe-Komponente), n Spalten (eine pro Eingabe-Variable)</p>
+  </div>
+
+  <h3>Kettenregel für Gradienten</h3>
+  <div class="formula-box">
+    <div class="formula-label">Kettenregel (mehrdimensional)</div>
+    <div class="formula">Wenn z = f(g(x)):  ∂z/∂x = (∂f/∂g) · (∂g/∂x) = J_f · J_g
+
+Für f(z), z = g(x):  ∇_x f = ∇_z f · J_g(x)</div>
+  </div>
+
+  <h3>Wichtige Rechenregeln für Gradienten von Matrizen</h3>
+  <div class="formula-box">
+    <div class="formula-label">Wichtige Identitäten (auswendig lernen!)</div>
+    <div class="formula">∂/∂X  Xᵀa = aᵀ            (a konstanter Vektor)
+∂/∂X  aᵀX = aᵀ            (a konstanter Vektor)
+∂/∂X  Xᵀ B X = X(B + Bᵀ)  (B symmetrisch: 2BX)
+∂/∂X  tr(AXB) = AᵀBᵀ      (Spur-Ableitung)
+∂/∂X  f(X)ᵀ = (∂f/∂X)ᵀ</div>
+  </div>
+
+  <div class="task-card" id="ex5_1">
+    <div class="task-header" onclick="toggleTask('ex5_1')">
+      <span class="task-badge">Aufgabe 5.4a</span>
+      <span class="task-title">f(z) = log(1+z), z = xᵀx – Gradient mit Kettenregel</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <div class="steps-box">
+        <div class="steps-title">Kettenregel anwenden</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Äußere Ableitung</div>
+          <span class="math-block">∂f/∂z = 1/(1+z)     →  Dimension: (1×1)</span>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Innere Ableitung</div>
+          <span class="math-block">∂z/∂x = ∂(xᵀx)/∂x = 2xᵀ   →  Dimension: (1×D)</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Kettenregel</div>
+          <span class="math-block">∂f/∂x = (1/(1+xᵀx)) · 2xᵀ  →  Dimension: (1×D)</span>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S6: INTEGRATION ═══════════ -->
+<div class="section" id="s6">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 6</span>
+    <span class="section-title">Mehrfachintegrale</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was ist ein Doppelintegral?</div>
+    <p>Ein Doppelintegral integriert eine Funktion f(x,y) über einen zweidimensionalen Bereich D. Es entspricht dem Volumen unter der Fläche z = f(x,y) über dem Bereich D.</p>
+    <span class="math-block">∬_D f(x,y) dA = ∬_D f(x,y) dx dy</span>
+  </div>
+
+  <h3>Fubini'scher Satz: Reduktion auf iterierende Integrale</h3>
+  <div class="formula-box">
+    <div class="formula-label">Fubini (Rechteckgebiet)</div>
+    <div class="formula">Für D = [a,b] × [c,d]:
+
+∬_D f(x,y) dx dy = ∫_c^d [∫_a^b f(x,y) dx] dy
+                 = ∫_a^b [∫_c^d f(x,y) dy] dx</div>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Doppelintegral berechnen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Integrationsreihenfolge festlegen</div><p>Wähle (innen über x, außen über y) oder umgekehrt. Bei Rechteckgebiet beliebig.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Inneres Integral berechnen</div><p>Integriere über die innere Variable. Die andere Variable wird dabei als Konstante behandelt.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Ergebnis als Funktion der äußeren Variable einsetzen</div><p>Das Ergebnis des inneren Integrals ist jetzt nur noch eine Funktion der äußeren Variable.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Äußeres Integral berechnen</div><p>Normales 1D-Integral auswerten.</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex6_1">
+    <div class="task-header" onclick="toggleTask('ex6_1')">
+      <span class="task-badge">Aufgabe 6.1a</span>
+      <span class="task-title">∬ e^(x−y) dx dy, D = [0,2]×[0,1]</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <div class="steps-box">
+        <div class="steps-title">Vollständige Lösung</div>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Faktorisieren</div>
+          <p>e^(x-y) = e^x · e^(-y) → Separierbar! Das Integral zerfällt in zwei unabhängige Integrale.</p>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Inneres Integral (über x)</div>
+          <span class="math-block">∫_0^2 e^x dx = [e^x]_0^2 = e² - 1</span>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Äußeres Integral (über y)</div>
+          <span class="math-block">∫_0^1 e^(-y) dy = [-e^(-y)]_0^1 = -e^(-1) - (-1) = 1 - 1/e</span>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Ergebnis</div>
+          <span class="math-block">∬ = (e² - 1) · (1 - 1/e) = e² - e - 1 + 1/e  ≈  (7.389-1)·(0.632) ≈ 4.036</span>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S7: GRUNDLAGEN NUMERIK ═══════════ -->
+<div class="section" id="s7">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 7</span>
+    <span class="section-title">Grundlagen der Numerik</span>
+  </div>
+
+  <h3>Fehlertypen</h3>
+  <div class="two-col">
+    <div class="def-box">
+      <div class="def-title">Absoluter Fehler</div>
+      <span class="math-block">e_abs = |exakter Wert − Näherung|</span>
+      <p>Der tatsächliche Abstand vom wahren Wert.</p>
+    </div>
+    <div class="def-box">
+      <div class="def-title">Relativer Fehler</div>
+      <span class="math-block">e_rel = |exakter Wert − Näherung| / |exakter Wert|</span>
+      <p>Der Fehler in Relation zur Größe des Wertes.</p>
+    </div>
+  </div>
+
+  <h3>Konditionszahl</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist die Konditionszahl?</div>
+    <p>Die Konditionszahl κ misst, wie stark sich ein kleiner Fehler in der Eingabe auf die Ausgabe auswirkt. Eine <strong>gut konditionierte</strong> Aufgabe (κ ≈ 1) verstärkt Eingabefehler kaum; eine <strong>schlecht konditionierte</strong> (κ ≫ 1) verstärkt sie stark.</p>
+    <span class="math-block">κ(x) = |x · f'(x) / f(x)|</span>
+  </div>
+
+  <div class="example-box">
+    <div class="example-title">Beispiel: Konditionszahlen (Aufgabe 7.2)</div>
+    <table>
+      <tr><th>Operation</th><th>Konditionszahl</th><th>Bedeutung</th></tr>
+      <tr><td>x + y (Addition)</td><td>|x|/(|x+y|) + |y|/(|x+y|)</td><td>Schlecht wenn x ≈ -y (Auslöschung!)</td></tr>
+      <tr><td>x · y (Multiplikation)</td><td>1 (immer gut)</td><td>Keine Verstärkung von Fehlern</td></tr>
+      <tr><td>√x (Wurzel)</td><td>1/2 (immer gut)</td><td>Dämpft Fehler sogar</td></tr>
+    </table>
+  </div>
+
+  <h3>Auslöschung</h3>
+  <div class="warn-box">
+    <span class="warn-icon">⚠️</span>
+    <strong>Auslöschung</strong> tritt auf, wenn zwei fast gleich große Zahlen subtrahiert werden. Die signifikanten Stellen heben sich auf und das Ergebnis hat kaum noch korrekte Stellen. Beispiel: 1.23456 - 1.23450 = 0.00006 (nur 1 korrekte Stelle trotz 6-stelliger Eingabe).
+  </div>
+
+  <h3>Gleitkommadarstellung</h3>
+  <div class="def-box">
+    <div class="def-title">Was ist Gleitkomma-Arithmetik?</div>
+    <p>Computer speichern Zahlen im Format: <span class="math">±1.m × 2^e</span> mit begrenzter Mantisse m und begrenztem Exponent e. Dadurch sind nicht alle reellen Zahlen exakt darstellbar → Rundungsfehler.</p>
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Gleitkomma-Darstellung (Aufgabe 7.3)</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Zahl ins Binärsystem umrechnen</div><p>Ganzzahlanteil: Division durch 2 mit Rest. Nachkommaanteil: Multiplikation mit 2.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Normalisieren</div><p>Auf 1.xxx × 2^e bringen. Exponent e anpassen.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Biased Exponent berechnen</div><p>e_gespeichert = e + Bias (Bias = 2^(#e-1) - 1 = 7 bei 4-Bit-Exponent)</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Mantisse und Format zusammensetzen</div><p>Vorzeichen | Exponent | Mantisse (ohne führende 1)</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex7_1">
+    <div class="task-header" onclick="toggleTask('ex7_1')">
+      <span class="task-badge">Aufgabe 7.1</span>
+      <span class="task-title">Taylor-Approximation e^x – Fehler, Konvergenz, Effizienz, Stabilität</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>T₁(x) = 1 + x  (Ordnung 1) &nbsp;&nbsp; T₃(x) = 1 + x + x²/2 + x³/6 (Ordnung 3)</strong></p>
+      <h4>a) Fehler bei x = 0.5</h4>
+      <table>
+        <tr><th>x</th><th>e^x (exakt)</th><th>T₁(x)</th><th>|Fehler T₁|</th><th>T₃(x)</th><th>|Fehler T₃|</th></tr>
+        <tr><td>0.1</td><td>1.10517</td><td>1.1</td><td>0.00517</td><td>1.10517</td><td>≈0.000005</td></tr>
+        <tr><td>0.5</td><td>1.64872</td><td>1.5</td><td>0.14872</td><td>1.64583</td><td>0.00289</td></tr>
+        <tr><td>1.0</td><td>2.71828</td><td>2.0</td><td>0.71828</td><td>2.66667</td><td>0.05161</td></tr>
+        <tr><td>2.0</td><td>7.38906</td><td>3.0</td><td>4.38906</td><td>6.33333</td><td>1.05572</td></tr>
+      </table>
+      <h4>b) Konvergenz: Fehlerquotient bei x = 0.5</h4>
+      <p>T₁ Restglied: e^ξ/(2!) · x² ≤ e^0.5/2 · 0.25 ≈ 0.206</p>
+      <p>T₃ Restglied: e^ξ/(4!) · x⁴ ≤ e^0.5/24 · 0.0625 ≈ 0.00430</p>
+      <p>Verhältnis: 0.206 / 0.00430 ≈ 48. Die Schranke von T₃ ist ~48-mal kleiner → T₃ konvergiert deutlich schneller.</p>
+      <h4>c) Effizienz η</h4>
+      <span class="math-block">η = (Fehlerreduktion) / (Mehraufwand)
+  = (|Fehler T₁| / |Fehler T₃|) / (Ops(T₃)/Ops(T₁))
+  = (0.14872 / 0.00289) / (6/2) ≈ 51.5 / 3 ≈ 17.2</span>
+      <p>η &gt; 1 → Ja, T₃ lohnt sich! Pro Mehraufwand wird der Fehler überproportional reduziert.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S8: NEWTON-VERFAHREN ═══════════ -->
+<div class="section" id="s8">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 8</span>
+    <span class="section-title">Newton-Verfahren</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Was ist das Newton-Verfahren?</div>
+    <p>Das Newton-Verfahren ist ein iteratives Verfahren zur <strong>Nullstellenbestimmung</strong> von f(x) = 0. Es benutzt die Idee der Linearisierung: Man approximiert f durch ihre Tangente am aktuellen Punkt und findet deren Nullstelle als nächsten Startpunkt.</p>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">Newton-Iterationsformel</div>
+    <div class="formula">x_{n+1} = x_n - f(x_n) / f'(x_n)</div>
+  </div>
+
+  <h3>Geometrische Intuition</h3>
+  <p>Man zeichnet die Tangente an den Graphen von f im Punkt (xₙ, f(xₙ)). Die Nullstelle der Tangente ist der neue Näherungswert x_{n+1}.</p>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Newton-Verfahren durchführen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">f(x) und f'(x) berechnen</div><p>Die Ableitung muss bekannt sein (analytisch).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Startwert x₀ wählen</div><p>Möglichst nahe an der gesuchten Nullstelle. Regel von Fourier: x₀ mit f(x₀)·f''(x₀) > 0 wählen.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Iteration durchführen</div><p>x_{n+1} = x_n - f(x_n)/f'(x_n). Auf genug Stellen runden (6 Nachkommastellen).</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Abbruchkriterium prüfen</div><p>|f(x_n)| &lt; ε = 0.0001. Falls erfüllt: Stopp.</p></div></div>
+  </div>
+
+  <h3>Fehlerabschätzungen</h3>
+  <div class="formula-box">
+    <div class="formula-label">A-priori-Fehlerabschätzung (vor der Iteration)</div>
+    <div class="formula">|x_k - z| ≤ (2m/M) · q^(2^k)
+
+mit  m = min|f'(x)| auf [a,b]
+     M = max|f''(x)| auf [a,b]
+     q = (M/(2m)) · |x₀ - z|  ≤  (M/(2m)) · ρ   (ρ = b-a konservativ)</div>
+  </div>
+  <div class="formula-box">
+    <div class="formula-label">A-posteriori-Fehlerabschätzung (nach Iteration)</div>
+    <div class="formula">|x_k - z| ≤ |f(x_k)| / m         (scharf)
+|x_k - z| ≤ (M/(2m)) · |x_k - x_{k-1}|²  (schwächer)</div>
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-icon">⚡</span>
+    <strong>Konvergenzordnung:</strong> Das Newton-Verfahren hat <strong>quadratische Konvergenz</strong> – die Anzahl der korrekten Dezimalstellen verdoppelt sich mit jedem Schritt. Das bedeutet: q² in der a-priori-Schranke.
+  </div>
+
+  <div class="task-card" id="ex8_1">
+    <div class="task-header" onclick="toggleTask('ex8_1')">
+      <span class="task-badge">Aufgabe 8.1a</span>
+      <span class="task-title">f(x) = x⁵ − 3x³ + x² − 2, Startwert x₀ = 2.0</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>f'(x) = 5x⁴ − 9x² + 2x</strong></p>
+      <table>
+        <tr><th>n</th><th>x_n</th><th>f(x_n)</th><th>f'(x_n)</th><th>x_{n+1}</th></tr>
+        <tr><td>0</td><td>2.000000</td><td>2.000000</td><td>58.000</td><td>1.965517</td></tr>
+        <tr><td>1</td><td>1.965517</td><td>0.292...</td><td>~52.4</td><td>1.959935</td></tr>
+        <tr><td>2</td><td>1.959935</td><td>0.00591...</td><td>≈51.8</td><td>1.959821</td></tr>
+        <tr><td>3</td><td>1.959821</td><td>≈0.000002</td><td>–</td><td>–</td></tr>
+      </table>
+      <p>Abbruch bei n=3: |f(x₃)| &lt; 0.0001 ✓. Nullstelle ≈ <strong>1.9598</strong></p>
+    </div>
+  </div>
+
+  <div class="task-card" id="ex8_2">
+    <div class="task-header" onclick="toggleTask('ex8_2')">
+      <span class="task-badge">Aufgabe 8.2</span>
+      <span class="task-title">f(x) = x³+2x−2 mit vollständiger Fehleranalyse</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>Gegeben:</strong> [a,b]=[0.5,1], m=f'(0.5)=2.75, M=f''(1)=6</p>
+      <h4>a) Existenz und Fourier-Startwert</h4>
+      <p>f(0.5) = 0.125+1-2 = -0.875 &lt; 0; f(1) = 1+2-2 = 1 &gt; 0 → Nullstelle in (0.5,1) (Zwischenwertsatz). f'(x)=3x²+2 > 0 immer → eindeutig.</p>
+      <p>f''(x) = 6x > 0 auf [0.5,1]. Fourier: f(x₀)·f''(x₀) > 0 → f(1)·f''(1) = 1·6 > 0 → <strong>x₀ = 1</strong></p>
+      <h4>b) A-priori-Abschätzung</h4>
+      <span class="math-block">q = M/(2m) · ρ = 6/(2·2.75) · 0.5 = 6/5.5 · 0.5 ≈ 0.545 < 1  ✓</span>
+      <p>Für ε = 10⁻⁴: q^(2^k) ≤ 10⁻⁴ → k=3 reicht (0.545^8 ≈ 0.0083... →k=4 → 0.0083^2...)</p>
+      <h4>c) Newton-Iteration</h4>
+      <p>f'(x) = 3x²+2. x₀ = 1:</p>
+      <span class="math-block">x₁ = 1 - 1/5 = 0.800000
+x₂ = 0.8 - (0.512+1.6-2)/(3·0.64+2) = 0.8 - 0.112/3.92 ≈ 0.771429
+x₃ ≈ 0.770920 (|f(x₃)| &lt; 0.0001 ✓)</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ S9: NUM. DIFFERENTIATION ═══════════ -->
+<div class="section" id="s9">
+<div class="container">
+  <div class="section-header">
+    <span class="section-num">Block 9</span>
+    <span class="section-title">Numerische Differentiation</span>
+  </div>
+
+  <div class="def-box">
+    <div class="def-title">Idee der numerischen Differentiation</div>
+    <p>Wenn f' nicht analytisch bekannt ist (oder sehr komplex), approximiert man sie durch <strong>Differenzenquotienten</strong>: kleine Schritte h anstelle von infinitesimalem Grenzübergang.</p>
+  </div>
+
+  <h3>Differenzenquotienten</h3>
+  <div class="formula-box">
+    <div class="formula-label">Zentrale Differenzenformeln (Ordnung O(h²))</div>
+    <div class="formula">f'(x₀)  ≈  [f(x₀+h) - f(x₀-h)] / (2h)
+
+f''(x₀) ≈  [f(x₀+h) - 2f(x₀) + f(x₀-h)] / h²</div>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">Fehlerabschätzung (erster Ableitung, zentral)</div>
+    <div class="formula">|f'_h(x₀) - f'(x₀)| ≤ h²/6 · |f'''(x₀)| + O(h⁴)</div>
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-icon">⚠️</span>
+    <strong>Auslöschungsproblem bei kleinem h:</strong> Je kleiner h, desto genauer die Approximation – aber bei sehr kleinem h subtrahiert man fast gleiche Zahlen → <strong>Auslöschung</strong> dominiert → Fehler wächst wieder! Es gibt ein optimales h.
+  </div>
+
+  <div class="steps-box">
+    <div class="steps-title">Schritt-für-Schritt: Numerische Ableitung berechnen</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Schrittweite h wählen</div><p>h = 1/2^k für k = 1, 2, ..., 5 (halbieren)</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Funktionswerte berechnen</div><p>f(x₀+h) und f(x₀-h) exakt (oder mit Computerpräzision) auswerten.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Differenzenquotient berechnen</div><p>[f(x₀+h) - f(x₀-h)] / (2h) für f', bzw. [f(x₀+h) - 2f(x₀) + f(x₀-h)] / h² für f''</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Fehler gegen exakten Wert berechnen</div><p>|Approximation - f'(x₀)| mit bekanntem analytischem Wert vergleichen.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Fehlerentwicklung analysieren</div><p>Wird der Fehler mit halbiertm h auf ~1/4 kleiner? → O(h²)-Konvergenz bestätigt.</p></div></div>
+  </div>
+
+  <div class="task-card" id="ex9_1">
+    <div class="task-header" onclick="toggleTask('ex9_1')">
+      <span class="task-badge">Aufgabe 9.1a</span>
+      <span class="task-title">f(x) = cos(x), x₀ = π/4 – zentrale Differenzenquotienten</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>Exakte Werte:</strong> f'(π/4) = -sin(π/4) = -√2/2 ≈ -0.70711, f''(π/4) = -cos(π/4) = -√2/2 ≈ -0.70711</p>
+      <table>
+        <tr><th>k</th><th>h</th><th>f'_h(x₀)</th><th>|Fehler f'|</th><th>f''_h(x₀)</th><th>|Fehler f''|</th></tr>
+        <tr><td>1</td><td>0.5</td><td>-0.70184</td><td>0.00527</td><td>-0.69466</td><td>0.01245</td></tr>
+        <tr><td>2</td><td>0.25</td><td>-0.70580</td><td>0.00131</td><td>-0.70400</td><td>0.00311</td></tr>
+        <tr><td>3</td><td>0.125</td><td>-0.70678</td><td>0.00033</td><td>-0.70633</td><td>0.00078</td></tr>
+        <tr><td>4</td><td>0.0625</td><td>-0.70703</td><td>0.000082</td><td>-0.70691</td><td>0.000196</td></tr>
+        <tr><td>5</td><td>0.03125</td><td>-0.70710</td><td>0.000021</td><td>-0.70706</td><td>0.000049</td></tr>
+      </table>
+      <p>Fehler halbiert sich ca. 4-fach wenn h halbiert → <strong>O(h²)-Konvergenz</strong> bestätigt.</p>
+      <p>Theoretische Schranke (f''' = sin(x)): h²/6 · |sin(π/4)|. Bei k=1: 0.25/6 · 0.707 ≈ 0.0295 (obere Schranke, tatsächlicher Fehler ist kleiner).</p>
+    </div>
+  </div>
+
+  <div class="task-card" id="ex9_2">
+    <div class="task-header" onclick="toggleTask('ex9_2')">
+      <span class="task-badge">Aufgabe 9.2b</span>
+      <span class="task-title">Auslöschung: f(x) = x³−x bei x₀ = 1/√3 (lokales Extremum)</span>
+      <span class="task-arrow">▶</span>
+    </div>
+    <div class="task-body">
+      <p><strong>f'(x) = 3x²-1, an x₀=1/√3: f'(1/√3) = 3·(1/3)-1 = 0</strong> (Extremum)</p>
+      <p>Das ist problematisch: f(x₀+h) ≈ f(x₀-h), denn x₀ ist ein Extremum. Bei der Differenz f(x₀+h) - f(x₀-h) heben sich die Hauptterme auf → fast nichts übrig.</p>
+      <p>Für kleines h gilt f(x₀+h) ≈ f(x₀-h) sehr genau, also ist die Differenz fast 0, aber durch 2h geteilt → hohe relative Fehler durch Auslöschung.</p>
+      <div class="warn-box" style="margin-top: 0.8rem">
+        <span class="warn-icon">📌</span><strong>Empfehlung:</strong> Numerische Differentiation ist instabil, wenn f'(x₀) ≈ 0. In diesem Fall besser eine andere Methode (z.B. automatische Differentiation) verwenden oder den Auswertungspunkt leicht verschieben.
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['home','s1','s2','s3','s4','s5','s6','s7','s8','s9'].indexOf(id);
+  document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function toggleTask(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+function checkQuiz(el, qid, correct) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => {
+    o.style.pointerEvents = 'none';
+    if (o === el) o.classList.add(correct ? 'correct' : 'wrong');
+  });
+  const fb = document.getElementById(qid + '_feedback');
+  if (fb) {
+    fb.textContent = correct
+      ? '✅ Richtig! Der Koeffizient bei (x-x₀)ᵏ ist stets f⁽ᵏ⁾(x₀)/k!. Bei k=3 also f‴(x₀)/3! = f‴(x₀)/6.'
+      : '❌ Nicht ganz. Erinnere: der Koeffizient ist f⁽ᵏ⁾(x₀)/k!, also f‴(x₀)/3! = f‴(x₀)/6.';
+    fb.className = 'quiz-feedback show';
+    fb.style.color = correct ? 'var(--accent3)' : 'var(--accent4)';
+  }
+}
+</script>
+</body>
+</html>
